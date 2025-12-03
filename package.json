@@ -1,0 +1,30 @@
+{
+  "name": "cabinet-psychiatrique",
+  "version": "1.0.0",
+  "description": "Système de gestion de cabinet psychiatrique",
+  "main": "start.js",
+  "scripts": {
+    "start": "node start.js",
+    "dev": "nodemon start.js",
+    "web": "node start.js",
+    "cli": "node src/main.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "psychiatrie",
+    "gestion",
+    "patients",
+    "consultations"
+  ],
+  "author": "Moughari Anissa",
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.21.2",
+    "helmet": "^7.2.0",
+    "morgan": "^1.10.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.11"
+  }
+}

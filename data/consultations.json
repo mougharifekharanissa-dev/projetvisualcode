@@ -1,0 +1,28 @@
+[
+  {
+    "id": "1",
+    "patientId": "1",
+    "patientNom": "Jean Dupont",
+    "date": "2024-01-15",
+    "heure": "10:00",
+    "type": "premiere",
+    "motif": "Anxiété généralisée",
+    "diagnostic": "Trouble anxieux",
+    "montant": 3000,
+    "reglement": "especes",
+    "createdAt": "2024-01-15T10:00:00.000Z"
+  },
+  {
+    "id": "2",
+    "patientId": "2",
+    "patientNom": "Sophie Martin",
+    "date": "2024-01-20",
+    "heure": "14:30",
+    "type": "suivi",
+    "motif": "Contrôle traitement",
+    "diagnostic": "Suivi médicamenteux",
+    "montant": 2000,
+    "reglement": "cheque",
+    "createdAt": "2024-01-20T14:30:00.000Z"
+  }
+]
