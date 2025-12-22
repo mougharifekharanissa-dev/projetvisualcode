@@ -1,0 +1,11 @@
+{
+  "16": [
+    {"id": "1601", "nom": "Alger-Centre"},
+    {"id": "1602", "nom": "Sidi M'Hamed"},
+    {"id": "1603", "nom": "El Madania"}
+  ],
+  "31": [
+    {"id": "3101", "nom": "Oran Centre"},
+    {"id": "3102", "nom": "Es-Senia"}
+  ]
+}

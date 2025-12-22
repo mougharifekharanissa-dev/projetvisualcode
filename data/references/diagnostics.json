@@ -1,0 +1,16 @@
+[
+  {
+    "id": 1,
+    "code": "F41.1",
+    "nom": "Trouble anxieux généralisé",
+    "categorie": "Troubles anxieux",
+    "description": "Anxiété excessive et persistante"
+  },
+  {
+    "id": 2,
+    "code": "F32",
+    "nom": "Épisode dépressif",
+    "categorie": "Troubles de l'humeur",
+    "description": "État dépressif caractérisé"
+  }
+]

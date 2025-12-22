@@ -1069,49 +1069,36 @@
                 </div>
                 
                 <!-- Informations administratives -->
-                <div class="form-section">
-                    <div class="form-section-title">
-                        <i class="fas fa-file-medical"></i> Informations administratives
-                    </div>
-                    
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="patient-numero-securite-sociale">Numéro sécurité sociale</label>
-                            <input type="text" id="patient-numero-securite-sociale">
-                        </div>
-                        <div class="form-group">
-                            <label for="patient-mutuelle">Mutuelle</label>
-                            <input type="text" id="patient-mutuelle">
-                        </div>
-                    </div>
-                    
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="patient-cin">CIN</label>
-                            <input type="text" id="patient-cin">
-                        </div>
-                        <div class="form-group">
-                            <label for="patient-type-consultation">Type de consultation initiale</label>
-                            <select id="patient-type-consultation">
-                                <option value="">Sélectionnez</option>
-                                <option value="Première consultation">Première consultation</option>
-                                <option value="Suivi">Suivi</option>
-                                <option value="Urgence">Urgence</option>
-                            </select>
-                        </div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="patient-moyen-connaissance">Comment le patient nous a connu</label>
-                        <select id="patient-moyen-connaissance">
-                            <option value="">Sélectionnez</option>
-                            <option value="Recommandation">Recommandation</option>
-                            <option value="Internet">Internet</option>
-                            <option value="Presse">Presse</option>
-                            <option value="Autre">Autre</option>
-                        </select>
-                    </div>
-                </div>
+<div class="form-section">
+    <div class="form-section-title">
+        <i class="fas fa-file-medical"></i> Informations administratives
+    </div>
+    
+    <div class="form-row">
+        <div class="form-group">
+            <label for="patient-cin">CIN</label>
+            <input type="text" id="patient-cin">
+        </div>
+        <div class="form-group">
+            <label for="patient-date-cin">Date CIN</label>
+            <input type="date" id="patient-date-cin">
+        </div>
+    </div>
+    
+    <div class="form-row">
+        <div class="form-group">
+            <label for="patient-commune-cin">Commune CIN</label>
+            <input type="text" id="patient-commune-cin" placeholder="Ex: Alger-Centre">
+        </div>
+        <div class="form-group">
+            <label for="patient-wilaya-cin">Wilaya CIN</label>
+            <select id="patient-wilaya-cin">
+                <option value="">Sélectionnez une wilaya</option>
+                <!-- Les options seront chargées dynamiquement -->
+            </select>
+        </div>
+    </div>
+</div>
                 
                 <div style="display: flex; justify-content: flex-end; gap: 1rem; margin-top: 2rem;">
                     <button type="button" class="btn btn-outline" onclick="closeModal('add-patient')">
@@ -1403,25 +1390,32 @@
         }
         
         async function loadWilayas() {
-            try {
-                const response = await fetch('/api/references/wilayas');
-                const wilayas = await response.json();
-                
-                const select = document.getElementById('patient-wilaya');
-                select.innerHTML = '<option value="">Sélectionnez une wilaya</option>';
-                
-                wilayas.forEach(wilaya => {
-                    const option = document.createElement('option');
-                    option.value = wilaya.id || wilaya.code || wilaya.nom;
-                    option.textContent = wilaya.nom;
-                    select.appendChild(option);
-                });
-                
-            } catch (error) {
-                console.error('Erreur chargement wilayas:', error);
-            }
-        }
+    try {
+        const response = await fetch('/api/references/wilayas');
+        const wilayas = await response.json();
         
+        // Pour le select patient-wilaya (existant)
+        const selectWilaya = document.getElementById('patient-wilaya');
+        selectWilaya.innerHTML = '<option value="">Sélectionnez une wilaya</option>';
+        
+        // POUR LE NOUVEAU SELECT patient-wilaya-cin
+        const selectWilayaCIN = document.getElementById('patient-wilaya-cin');
+        selectWilayaCIN.innerHTML = '<option value="">Sélectionnez une wilaya</option>';
+        
+        wilayas.forEach(wilaya => {
+            const option = document.createElement('option');
+            option.value = wilaya.id || wilaya.code || wilaya.nom;
+            option.textContent = wilaya.nom;
+            
+            // Ajouter aux deux selects
+            selectWilaya.appendChild(option.cloneNode(true));
+            selectWilayaCIN.appendChild(option);
+        });
+        
+    } catch (error) {
+        console.error('Erreur chargement wilayas:', error);
+    }
+}
         async function loadPatientsForSelect() {
             try {
                 const response = await fetch('/api/patients');
@@ -1984,11 +1978,13 @@
                     antecedents_medicaux: document.getElementById('patient-antécédents-médicaux').value || null,
                     antecedents_psychiatriques: document.getElementById('patient-antécédents-psychiatriques').value || null,
                     antecedents_familiaux: document.getElementById('patient-antécédents-familiaux-détails').value || null,
-                    numero_securite_sociale: document.getElementById('patient-numero-securite-sociale').value || null,
-                    mutuelle: document.getElementById('patient-mutuelle').value || null,
+                   
+                    
                     cin: document.getElementById('patient-cin').value || null,
-                    type_consultation: document.getElementById('patient-type-consultation').value || null,
-                    moyen_connaissance: document.getElementById('patient-moyen-connaissance').value || null
+                    date_cin: document.getElementById('patient-date-cin').value || null,
+                    commune_cin: document.getElementById('patient-commune-cin').value || null,
+                    wilaya_cin: document.getElementById('patient-wilaya-cin').value || null,
+                   
                 };
                 
                 // Récupérer les antécédents familiaux cochés

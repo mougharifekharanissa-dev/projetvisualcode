@@ -1,0 +1,3165 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cabinet Psychiatrique - Administration</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* Variables de couleur */
+        :root {
+            --primary: #4b6cb7;
+            --primary-dark: #182848;
+            --secondary: #667eea;
+            --success: #10b981;
+            --info: #3b82f6;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --light: #f8fafc;
+            --dark: #1e293b;
+            --gray: #64748b;
+            --border: #e2e8f0;
+        }
+        
+        /* Reset et styles globaux */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f1f5f9;
+            color: var(--dark);
+            line-height: 1.6;
+        }
+        
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+        
+        /* Layout principal */
+        .app-container {
+            display: flex;
+            min-height: 100vh;
+        }
+        
+        /* Sidebar */
+        .sidebar {
+            width: 260px;
+            background: linear-gradient(180deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            padding: 1.5rem 0;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            box-shadow: 4px 0 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        .logo {
+            padding: 0 1.5rem 2rem;
+            text-align: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 1.5rem;
+        }
+        
+        .logo h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+        
+        .logo p {
+            font-size: 0.85rem;
+            opacity: 0.8;
+            margin-top: 0.25rem;
+        }
+        
+        .nav-menu {
+            padding: 0 1rem;
+        }
+        
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 0.85rem 1rem;
+            margin-bottom: 0.5rem;
+            border-radius: 8px;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        
+        .nav-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .nav-item.active {
+            background: rgba(255, 255, 255, 0.15);
+            font-weight: 600;
+        }
+        
+        .nav-item i {
+            width: 24px;
+            margin-right: 12px;
+            font-size: 1.1rem;
+        }
+        
+        /* Contenu principal */
+        .main-content {
+            flex: 1;
+            margin-left: 260px;
+            padding: 1.5rem;
+        }
+        
+        /* Header */
+        .header {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .header h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+        
+        .header-actions {
+            display: flex;
+            gap: 1rem;
+        }
+        
+        /* Boutons */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.6rem 1.2rem;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s;
+            gap: 0.5rem;
+        }
+        
+        .btn i {
+            font-size: 1rem;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(75, 108, 183, 0.25);
+        }
+        
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+        
+        .btn-info {
+            background: var(--info);
+            color: white;
+        }
+        
+        .btn-warning {
+            background: var(--warning);
+            color: white;
+        }
+        
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+        
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--primary);
+            color: var(--primary);
+        }
+        
+        .btn-outline:hover {
+            background: var(--primary);
+            color: white;
+        }
+        
+        /* Cartes de statistiques */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            border-left: 4px solid var(--primary);
+        }
+        
+        .stat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: white;
+        }
+        
+        .icon-patients { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .icon-consultations { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
+        .icon-doctors { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
+        .icon-occupancy { background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); }
+        
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+        
+        .stat-label {
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+        
+        /* Cartes de fonctionnalités */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .feature-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .feature-icon {
+            font-size: 2rem;
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+        
+        .feature-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        
+        .feature-description {
+            color: var(--gray);
+            margin-bottom: 1.5rem;
+            font-size: 0.95rem;
+        }
+        
+        /* Tableaux */
+        .table-container {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            margin-bottom: 2rem;
+        }
+        
+        .table-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th {
+            background: var(--light);
+            padding: 1rem 1.5rem;
+            text-align: left;
+            font-weight: 600;
+            color: var(--gray);
+            font-size: 0.9rem;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        td {
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        tr:hover {
+            background: var(--light);
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+        
+        .badge-success {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        
+        .badge-warning {
+            background: #fef3c7;
+            color: #92400e;
+        }
+        
+        .badge-danger {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        
+        .badge-info {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+        
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            overflow-y: auto;
+            padding: 2rem 0;
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 700px;
+            padding: 2rem;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            margin: auto;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            position: sticky;
+            top: 0;
+            background: white;
+            padding: 1rem 0;
+            z-index: 10;
+        }
+        
+        .modal-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+        
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--gray);
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--dark);
+        }
+        
+        input, select, textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+        
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+        
+        /* Alertes */
+        .alert {
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .alert-info {
+            background: #dbeafe;
+            color: #1e40af;
+            border-left: 4px solid var(--info);
+        }
+        
+        .alert-success {
+            background: #d1fae5;
+            color: #065f46;
+            border-left: 4px solid var(--success);
+        }
+        
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .sidebar {
+                width: 80px;
+            }
+            
+            .sidebar .logo h1,
+            .sidebar .logo p,
+            .sidebar .nav-item span {
+                display: none;
+            }
+            
+            .sidebar .nav-item {
+                justify-content: center;
+                padding: 1rem;
+            }
+            
+            .sidebar .nav-item i {
+                margin-right: 0;
+                font-size: 1.25rem;
+            }
+            
+            .main-content {
+                margin-left: 80px;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .stats-grid,
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .header {
+                flex-direction: column;
+                gap: 1rem;
+                align-items: flex-start;
+            }
+            
+            .header-actions {
+                width: 100%;
+                flex-wrap: wrap;
+            }
+            
+            .modal-content {
+                width: 95%;
+                padding: 1.5rem;
+            }
+        }
+        
+        /* Styles spécifiques pour les formulaires */
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+        
+        .form-section {
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 2px solid var(--light);
+        }
+        
+        .form-section-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .checkbox-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+        
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem;
+            background: #f8fafc;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        .checkbox-label:hover {
+            background: #e2e8f0;
+        }
+        
+        .checkbox-label input[type="checkbox"] {
+            width: auto;
+            margin: 0;
+        }
+        
+        .form-group small {
+            color: var(--gray);
+            font-size: 0.85rem;
+            margin-top: 0.25rem;
+            display: block;
+        }
+        
+        .required-field::after {
+            content: " *";
+            color: var(--danger);
+        }
+        
+        /* Styles pour les consultations par patient */
+        .patient-consultations {
+            margin-top: 2rem;
+        }
+        
+        .consultation-item {
+            background: #f8fafc;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-left: 4px solid var(--info);
+        }
+        
+        .consultation-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+        
+        .consultation-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        /* Champs conditionnels */
+        .conditional-field {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="logo">
+                <h1><i class="fas fa-hospital"></i> Cabinet</h1>
+                <p>Psychiatrique</p>
+            </div>
+            
+            <nav class="nav-menu">
+                <div class="nav-item active">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>Tableau de bord</span>
+                </div>
+                <div class="nav-item" onclick="showSection('patients')">
+                    <i class="fas fa-user-injured"></i>
+                    <span>Gestion des patients</span>
+                </div>
+                <div class="nav-item" onclick="showSection('consultations')">
+                    <i class="fas fa-calendar-check"></i>
+                    <span>Consultations</span>
+                </div>
+                <div class="nav-item" onclick="showSection('doctors')">
+                    <i class="fas fa-user-md"></i>
+                    <span>Praticiens</span>
+                </div>
+                <div class="nav-item" onclick="showSection('stats')">
+                    <i class="fas fa-chart-bar"></i>
+                    <span>Statistiques</span>
+                </div>
+                <div class="nav-item" onclick="showSection('api')">
+                    <i class="fas fa-code"></i>
+                    <span>API & Développement</span>
+                </div>
+                <div class="nav-item" onclick="showSection('settings')">
+                    <i class="fas fa-cog"></i>
+                    <span>Paramètres</span>
+                </div>
+                <div class="nav-item" onclick="showSection('utilities')">
+                  <i class="fas fa-tools"></i>
+                  <span>Utilitaire Admin</span>
+                </div>
+            </nav>
+        </aside>
+        
+        <!-- Contenu principal -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="header">
+                <div>
+                    <h2>Tableau de bord - Administration</h2>
+                    <p style="color: var(--gray); margin-top: 0.25rem;">
+                        <i class="far fa-calendar"></i> 
+                        <span id="current-date"></span>
+                    </p>
+                </div>
+                <div class="header-actions">
+                    <button class="btn btn-primary" onclick="testAllAPIs()">
+                        <i class="fas fa-vial"></i> Tester les APIs
+                    </button>
+                    <button class="btn btn-outline" onclick="refreshData()">
+                        <i class="fas fa-sync-alt"></i> Actualiser
+                    </button>
+                </div>
+            </header>
+            
+            <!-- Section Tableau de bord (par défaut) -->
+            <section id="dashboard-section">
+                <!-- Alertes d'information -->
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle"></i>
+                    <div>
+                        <strong>Interface en développement</strong> - Les fonctionnalités CRUD complètes seront bientôt disponibles.
+                        En attendant, utilisez les APIs disponibles.
+                    </div>
+                </div>
+                
+                <!-- Statistiques -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div>
+                                <div class="stat-value" id="patient-count">0</div>
+                                <div class="stat-label">Patients enregistrés</div>
+                            </div>
+                            <div class="stat-icon icon-patients">
+                                <i class="fas fa-user-injured"></i>
+                            </div>
+                        </div>
+                        <button class="btn btn-primary" onclick="showSection('patients')">
+                            <i class="fas fa-list"></i> Voir la liste
+                        </button>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div>
+                                <div class="stat-value" id="consultation-count">0</div>
+                                <div class="stat-label">Consultations</div>
+                            </div>
+                            <div class="stat-icon icon-consultations">
+                                <i class="fas fa-calendar-check"></i>
+                            </div>
+                        </div>
+                        <button class="btn btn-primary" onclick="showSection('consultations')">
+                            <i class="fas fa-calendar"></i> Voir le planning
+                        </button>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div>
+                                <div class="stat-value">3</div>
+                                <div class="stat-label">Praticiens</div>
+                            </div>
+                            <div class="stat-icon icon-doctors">
+                                <i class="fas fa-user-md"></i>
+                            </div>
+                        </div>
+                        <button class="btn btn-primary" onclick="showSection('doctors')">
+                            <i class="fas fa-user-md"></i> Gérer
+                        </button>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div>
+                                <div class="stat-value">87%</div>
+                                <div class="stat-label">Taux d'occupation</div>
+                            </div>
+                            <div class="stat-icon icon-occupancy">
+                                <i class="fas fa-chart-line"></i>
+                            </div>
+                        </div>
+                        <button class="btn btn-primary" onclick="showSection('stats')">
+                            <i class="fas fa-chart-pie"></i> Détails
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Actions rapides -->
+                <div class="feature-card">
+                    <h3 class="feature-title">Actions rapides</h3>
+                    <p class="feature-description">Accédez rapidement aux fonctionnalités principales</p>
+                    
+                    <div style="display: flex; flex-wrap: wrap; gap: 1rem; margin-top: 1rem;">
+                        <button class="btn btn-success" onclick="openModal('add-patient')">
+                            <i class="fas fa-user-plus"></i> Ajouter un patient
+                        </button>
+                        <button class="btn btn-info" onclick="openModal('add-consultation')">
+                            <i class="fas fa-calendar-plus"></i> Nouveau rendez-vous
+                        </button>
+                        <button class="btn btn-warning" onclick="showSection('api')">
+                            <i class="fas fa-code"></i> Tester les APIs
+                        </button>
+                        <button class="btn btn-danger" onclick="exportData()">
+                            <i class="fas fa-file-export"></i> Exporter les données
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Derniers patients -->
+                <div class="table-container">
+                    <div class="table-header">
+                        <h3>Derniers patients</h3>
+                        <button class="btn btn-primary" onclick="showSection('patients')">
+                            <i class="fas fa-eye"></i> Voir tous
+                        </button>
+                    </div>
+                    <div id="recent-patients">
+                        <p style="padding: 2rem; text-align: center; color: var(--gray);">
+                            Chargement des patients...
+                        </p>
+                    </div>
+                </div>
+                
+                <!-- Prochaines consultations -->
+                <div class="table-container">
+                    <div class="table-header">
+                        <h3>Prochaines consultations</h3>
+                        <button class="btn btn-primary" onclick="showSection('consultations')">
+                            <i class="fas fa-calendar"></i> Voir l'agenda
+                        </button>
+                    </div>
+                    <div id="upcoming-consultations">
+                        <p style="padding: 2rem; text-align: center; color: var(--gray);">
+                            Chargement des consultations...
+                        </p>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Section Patients (cachée par défaut) -->
+            <section id="patients-section" style="display: none;">
+                <div class="table-container">
+                    <div class="table-header">
+                        <h3><i class="fas fa-user-injured"></i> Gestion des patients</h3>
+                        <div style="display: flex; gap: 0.5rem;">
+                            <button class="btn btn-outline" onclick="showSection('dashboard')">
+                                <i class="fas fa-arrow-left"></i> Retour
+                            </button>
+                            <button class="btn btn-success" onclick="openModal('add-patient')">
+                                <i class="fas fa-user-plus"></i> Ajouter un patient
+                            </button>
+                        </div>
+                    </div>
+                    <div id="all-patients">
+                        <p style="padding: 2rem; text-align: center; color: var(--gray);">
+                            Chargement de la liste des patients...
+                        </p>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Section Consultations (cachée par défaut) -->
+            <section id="consultations-section" style="display: none;">
+                <div class="table-container">
+                    <div class="table-header">
+                        <h3><i class="fas fa-calendar-check"></i> Gestion des consultations</h3>
+                        <div style="display: flex; gap: 0.5rem;">
+                            <button class="btn btn-outline" onclick="showSection('dashboard')">
+                                <i class="fas fa-arrow-left"></i> Retour
+                            </button>
+                            <button class="btn btn-success" onclick="openModal('add-consultation')">
+                                <i class="fas fa-calendar-plus"></i> Nouvelle consultation
+                            </button>
+                        </div>
+                    </div>
+                    <div id="all-consultations">
+                        <p style="padding: 2rem; text-align: center; color: var(--gray);">
+                            Chargement des consultations...
+                        </p>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Section APIs (cachée par défaut) -->
+            <section id="api-section" style="display: none;">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-code"></i>
+                    </div>
+                    <h3 class="feature-title">Routes API disponibles</h3>
+                    <p class="feature-description">
+                        Testez les endpoints de l'API directement depuis l'interface
+                    </p>
+                    
+                    <div class="api-list" style="margin-top: 2rem;">
+                        <div style="margin-bottom: 1.5rem;">
+                            <h4 style="margin-bottom: 0.75rem; color: var(--dark);">Endpoints GET</h4>
+                            <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                                <div style="display: flex; align-items: center; gap: 1rem;">
+                                    <code style="background: var(--light); padding: 0.5rem 1rem; border-radius: 6px; font-family: monospace;">
+                                        GET /api/health
+                                    </code>
+                                    <span style="color: var(--gray);">Vérification du serveur</span>
+                                    <button class="btn btn-outline" onclick="testEndpoint('/api/health')">
+                                        <i class="fas fa-play"></i> Tester
+                                    </button>
+                                </div>
+                                
+                                <div style="display: flex; align-items: center; gap: 1rem;">
+                                    <code style="background: var(--light); padding: 0.5rem 1rem; border-radius: 6px; font-family: monospace;">
+                                        GET /api/patients
+                                    </code>
+                                    <span style="color: var(--gray);">Liste des patients</span>
+                                    <button class="btn btn-outline" onclick="testEndpoint('/api/patients')">
+                                        <i class="fas fa-play"></i> Tester
+                                    </button>
+                                </div>
+                                
+                                <div style="display: flex; align-items: center; gap: 1rem;">
+                                    <code style="background: var(--light); padding: 0.5rem 1rem; border-radius: 6px; font-family: monospace;">
+                                        GET /api/consultations
+                                    </code>
+                                    <span style="color: var(--gray);">Liste des consultations</span>
+                                    <button class="btn btn-outline" onclick="testEndpoint('/api/consultations')">
+                                        <i class="fas fa-play"></i> Tester
+                                    </button>
+                                </div>
+                                
+                                <div style="display: flex; align-items: center; gap: 1rem;">
+                                    <code style="background: var(--light); padding: 0.5rem 1rem; border-radius: 6px; font-family: monospace;">
+                                        GET /api/references/wilayas
+                                    </code>
+                                    <span style="color: var(--gray);">Référentiel des wilayas</span>
+                                    <button class="btn btn-outline" onclick="testEndpoint('/api/references/wilayas')">
+                                        <i class="fas fa-play"></i> Tester
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="alert alert-success">
+                            <i class="fas fa-lightbulb"></i>
+                            <div>
+                                <strong>Prochaines étapes de développement</strong><br>
+                                Les endpoints POST, PUT, DELETE pour le CRUD complet seront implémentés prochainement.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Autres sections (vides pour l'instant) -->
+            <section id="doctors-section" style="display: none;">
+                <div class="feature-card">
+                    <h3><i class="fas fa-user-md"></i> Gestion des praticiens</h3>
+                    <p>En cours de développement...</p>
+                </div>
+            </section>
+            
+            <section id="stats-section" style="display: none;">
+                <div class="feature-card">
+                    <h3><i class="fas fa-chart-bar"></i> Statistiques avancées</h3>
+                    <p>En cours de développement...</p>
+                </div>
+            </section>
+            
+            <section id="settings-section" style="display: none;">
+                <div class="feature-card">
+                    <h3><i class="fas fa-cog"></i> Paramètres du système</h3>
+                    <p>En cours de développement...</p>
+                </div>
+            </section>
+        
+    <!-- Section Utilitaire Admin (cachée par défaut) -->
+<section id="utilities-section" style="display: none;">
+    <div class="feature-card">
+        <div class="feature-icon">
+            <i class="fas fa-tools"></i>
+        </div>
+        <h3 class="modal-title">Utilitaire d'Administration</h3>
+        <p class="feature-description">
+            Gestion complète des tables de référence (CRUD)
+        </p>
+        
+        <!-- Tabs pour naviguer entre les tables -->
+        <div class="tabs" style="margin: 2rem 0; border-bottom: 2px solid var(--border);">
+            <button class="tab-btn active" onclick="openUtilityTab('professions')">
+                <i class="fas fa-briefcase"></i> Professions
+            </button>
+            <button class="tab-btn" onclick="openUtilityTab('diagnostics')">
+                <i class="fas fa-stethoscope"></i> Diagnostics
+            </button>
+            <button class="tab-btn" onclick="openUtilityTab('wilayas')">
+                <i class="fas fa-map-marker-alt"></i> Wilayas
+            </button>
+            <button class="tab-btn" onclick="openUtilityTab('communes')">
+                <i class="fas fa-map-pin"></i> Communes
+            </button>
+            <button class="tab-btn" onclick="openUtilityTab('traitements')">
+                <i class="fas fa-prescription-bottle-alt"></i> Traitements
+            </button>
+        </div>
+        
+        <!-- Conteneur des tables -->
+        <div id="utilities-content">
+            <!-- Le contenu sera chargé dynamiquement -->
+            <div style="text-align: center; padding: 3rem;">
+                <i class="fas fa-database" style="font-size: 3rem; color: var(--gray); margin-bottom: 1rem;"></i>
+                <h4 style="color: var(--gray);">Sélectionnez une table à gérer</h4>
+            </div>
+        </div>
+    </div>
+</section>
+</main>
+    </div>
+    <!-- Modal Ajout Patient -->
+    <div id="add-patient-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Ajouter un nouveau patient</h3>
+                <button class="modal-close" onclick="closeModal('add-patient')">&times;</button>
+            </div>
+            <form id="patient-form">
+                <!-- Informations personnelles -->
+                <div class="form-section">
+                    <div class="form-section-title">
+                        <i class="fas fa-id-card"></i> Informations personnelles
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="patient-nom" class="required-field">Nom</label>
+                            <input type="text" id="patient-nom" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="patient-prenom" class="required-field">Prénom</label>
+                            <input type="text" id="patient-prenom" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="patient-date-naissance">Date de naissance</label>
+                            <input type="date" id="patient-date-naissance">
+                        </div>
+                        <div class="form-group">
+                            <label for="patient-age">Âge</label>
+                            <input type="number" id="patient-age" min="0" max="120" onchange="updateBirthDate()">
+                            <small>Calculé automatiquement si date de naissance fournie</small>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+    <div class="form-group">
+        <label for="wilaya_naissance">Wilaya de naissance *</label>
+        <select id="wilaya_naissance" name="wilaya_naissance" required class="form-control">
+            <option value="">Sélectionnez une wilaya</option>
+            <!-- Les options seront chargées dynamiquement -->
+        </select>
+    </div>
+    <div class="form-group">
+        <label for="commune_naissance">Commune de naissance *</label>
+        <select id="commune_naissance" name="commune_naissance" required class="form-control" disabled>
+            <option value="">Sélectionnez d'abord une wilaya</option>
+        </select>
+        <small class="form-text text-muted">Sélectionnez la commune</small>
+    </div>
+</div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="patient-sexe">Sexe</label>
+                            <select id="patient-sexe">
+                                <option value="">Sélectionnez</option>
+                                <option value="M">Masculin</option>
+                                <option value="F">Féminin</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="patient-situation-familiale">Situation familiale</label>
+                            <select id="patient-situation-familiale">
+                                <option value="">Sélectionnez</option>
+                                <option value="Célibataire">Célibataire</option>
+                                <option value="Marié(e)">Marié(e)</option>
+                                <option value="Divorcé(e)">Divorcé(e)</option>
+                                <option value="Veuf(ve)">Veuf(ve)</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Informations de contact -->
+                <div class="form-section">
+                    <div class="form-section-title">
+                        <i class="fas fa-address-book"></i> Informations de contact
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="patient-adresse">Adresse</label>
+                            <textarea id="patient-adresse" rows="2"></textarea>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="patient-telephone">Téléphone</label>
+                            <input type="tel" id="patient-telephone">
+                        </div>
+                        <div class="form-group">
+                            <label for="patient-email">Email</label>
+                            <input type="email" id="patient-email">
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                         <label for="profession">Profession</label>
+                         <select id="profession_id" name="profession_id" class="form-control">
+                         <option value="">Sélectionnez une profession</option>
+                         </select>
+                        </div>
+                    </div>
+                
+                </div>
+                <!-- Antécédents médicaux -->
+                <div class="form-section">
+                    <div class="form-section-title">
+                        <i class="fas fa-heartbeat"></i> Antécédents médicaux
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="patient-antécédents-médicaux">Antécédents médicaux</label>
+                        <textarea id="patient-antécédents-médicaux" rows="3" placeholder="Maladies chroniques, allergies, traitements en cours..."></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="patient-antécédents-psychiatriques">Antécédents psychiatriques</label>
+                        <textarea id="patient-antécédents-psychiatriques" rows="3" placeholder="Diagnostics antérieurs, hospitalisations, traitements psychiatriques..."></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Antécédents familiaux</label>
+                        <div class="checkbox-group">
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="antecedents-familiaux" value="Psychiatrie"> Troubles psychiatriques
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="antecedents-familiaux" value="Neurologie"> Troubles neurologiques
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="antecedents-familiaux" value="Addiction"> Addictions
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="antecedents-familiaux" value="Autre"> Autre
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="patient-antécédents-familiaux-détails">Détails antécédents familiaux</label>
+                        <textarea id="patient-antécédents-familiaux-détails" rows="2" placeholder="Précisions supplémentaires..."></textarea>
+                    </div>
+                </div>
+                
+                <!-- Informations administratives -->
+               <div class="form-section">
+                   <div class="form-section-title">
+                      <i class="fas fa-file-medical"></i> Informations administratives
+                    </div>
+    
+                  <div class="form-row">
+                       <div class="form-group">
+                           <label for="patient-cin">CIN</label>
+                           <input type="text" id="patient-cin">
+                       </div>
+                      <div class="form-group">
+                         <label for="patient-date-cin">Date CIN</label>
+                         <input type="date" id="patient-date-cin">
+                      </div>
+                 </div>
+
+                      <div class="form-row">
+                          <div class="form-group">
+                              <label for="patient-wilaya-cin">Wilaya CIN</label>
+                                <select id="patient-wilaya-cin" name="patient-wilaya-cin">
+                                <option value="">Sélectionnez une wilaya</option>
+                                 </select>
+                            </div>
+                               <div class="form-group">
+                                  <label for="patient-commune-cin">Commune CIN</label>
+                                    <select id="patient-commune-cin" name="patient-commune-cin" disabled>
+                                     <option value="">Sélectionnez d'abord une wilaya</option>
+                                     </select>
+                                </div>
+                            </div>
+                </div>
+                <div style="display: flex; justify-content: flex-end; gap: 1rem; margin-top: 2rem;">
+                    <button type="button" class="btn btn-outline" onclick="closeModal('add-patient')">
+                        Annuler
+                    </button>
+                    <button type="submit" class="btn btn-success">
+                        <i class="fas fa-save"></i> Enregistrer le patient
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Modal Ajout Consultation -->
+    <div id="add-consultation-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Nouvelle consultation</h3>
+                <button class="modal-close" onclick="closeModal('add-consultation')">&times;</button>
+            </div>
+            <form id="consultation-form">
+                <!-- Informations générales -->
+                <div class="form-section">
+                    <div class="form-section-title">
+                        <i class="fas fa-calendar-alt"></i> Informations générales
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="consultation-patient" class="required-field">Patient</label>
+                            <select id="consultation-patient" required>
+                                <option value="">Sélectionnez un patient</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="consultation-praticien" class="required-field">Praticien</label>
+                            <select id="consultation-praticien" required>
+                                <option value="">Sélectionnez un praticien</option>
+                                <option value="1">Dr. Ahmed Benali</option>
+                                <option value="2">Dr. Fatima Zohra</option>
+                                <option value="3">Dr. Samir Khelifa</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="consultation-date" class="required-field">Date et heure</label>
+                            <input type="datetime-local" id="consultation-date" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="consultation-duration">Durée (minutes)</label>
+                            <input type="number" id="consultation-duration" value="30" min="15" max="180" step="5">
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="consultation-type">Type de consultation</label>
+                            <select id="consultation-type">
+                                <option value="">Sélectionnez</option>
+                                <option value="Première consultation">Première consultation</option>
+                                <option value="Consultation de suivi">Consultation de suivi</option>
+                                <option value="Consultation d'urgence">Consultation d'urgence</option>
+                                <option value="Téléconsultation">Téléconsultation</option>
+                                <option value="Bilan">Bilan</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="consultation-statut">Statut</label>
+                            <select id="consultation-statut">
+                                <option value="Planifiée">Planifiée</option>
+                                <option value="Confirmée">Confirmée</option>
+                                <option value="Annulée">Annulée</option>
+                                <option value="Terminée">Terminée</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Motif et symptômes -->
+                <div class="form-section">
+                    <div class="form-section-title">
+                        <i class="fas fa-stethoscope"></i> Motif et symptômes
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="consultation-motif" class="required-field">Motif de consultation</label>
+                        <textarea id="consultation-motif" rows="3" required placeholder="Décrivez le motif principal de la consultation..."></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Symptômes présents</label>
+                        <div class="checkbox-group">
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="symptomes" value="Anxiété"> Anxiété
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="symptomes" value="Dépression"> Dépression
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="symptomes" value="Insomnie"> Insomnie
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="symptomes" value="Hallucinations"> Hallucinations
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="symptomes" value="Idées suicidaires"> Idées suicidaires
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="symptomes" value="Troubles alimentaires"> Troubles alimentaires
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="symptomes" value="Addiction"> Addiction
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="symptomes" value="Autre"> Autre
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="consultation-symptomes-details">Détails des symptômes</label>
+                        <textarea id="consultation-symptomes-details" rows="2" placeholder="Précisions sur les symptômes, durée, intensité..."></textarea>
+                    </div>
+                </div>
+                
+                <!-- Examen et diagnostic -->
+                <div class="form-section">
+                    <div class="form-section-title">
+                        <i class="fas fa-clipboard-check"></i> Examen et diagnostic
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="consultation-examen-mental">Examen mental</label>
+                        <textarea id="consultation-examen-mental" rows="3" placeholder="État de conscience, humeur, pensée, perception..."></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="consultation-diagnostic">Diagnostic préliminaire</label>
+                        <textarea id="consultation-diagnostic" rows="2" placeholder="Diagnostic CIM-10 si possible..."></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="consultation-score-gaf">Score GAF (Global Assessment of Functioning)</label>
+                        <input type="number" id="consultation-score-gaf" min="0" max="100">
+                    </div>
+                </div>
+                
+                <!-- Traitement et recommandations -->
+                <div class="form-section">
+                    <div class="form-section-title">
+                        <i class="fas fa-prescription-bottle-alt"></i> Traitement et recommandations
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="consultation-traitement-prescrit">Traitement prescrit</label>
+                        <textarea id="consultation-traitement-prescrit" rows="3" placeholder="Médicaments, psychothérapie, autres interventions..."></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="consultation-recommandations">Recommandations</label>
+                        <textarea id="consultation-recommandations" rows="2" placeholder="Conseils, orientation, examens complémentaires..."></textarea>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="consultation-prochaine-visite">Prochaine visite recommandée</label>
+                            <input type="date" id="consultation-prochaine-visite">
+                        </div>
+                        <div class="form-group">
+                            <label for="consultation-urgence">Niveau d'urgence</label>
+                            <select id="consultation-urgence">
+                                <option value="Normal">Normal</option>
+                                <option value="Élevé">Élevé</option>
+                                <option value="Critique">Critique</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Informations administratives -->
+                <div class="form-section">
+                    <div class="form-section-title">
+                        <i class="fas fa-file-invoice-dollar"></i> Informations administratives
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="consultation-tarif">Tarif (DA)</label>
+                            <input type="number" id="consultation-tarif" min="0" step="100">
+                        </div>
+                        <div class="form-group">
+                            <label for="consultation-mode-paiement">Mode de paiement</label>
+                            <select id="consultation-mode-paiement">
+                                <option value="">Sélectionnez</option>
+                                <option value="Espèces">Espèces</option>
+                                <option value="Carte bancaire">Carte bancaire</option>
+                                <option value="Chèque">Chèque</option>
+                                <option value="Mutuelle">Mutuelle</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="consultation-notes-administratives">Notes administratives</label>
+                        <textarea id="consultation-notes-administratives" rows="2" placeholder="Informations administratives complémentaires..."></textarea>
+                    </div>
+                </div>
+                
+                <div style="display: flex; justify-content: flex-end; gap: 1rem; margin-top: 2rem;">
+                    <button type="button" class="btn btn-outline" onclick="closeModal('add-consultation')">
+                        Annuler
+                    </button>
+                    <button type="submit" class="btn btn-success">
+                        <i class="fas fa-calendar-check"></i> Enregistrer la consultation
+                    </button>
+                </div>
+            </form>
+            
+        </div>
+    </div>
+    
+    <!-- Modal Visualisation Patient avec consultations -->
+    <div id="view-patient-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Détails du patient</h3>
+                <button class="modal-close" onclick="closeModal('view-patient')">&times;</button>
+            </div>
+            <div id="patient-details-content">
+                <!-- Le contenu sera chargé dynamiquement -->
+            </div>
+        </div>
+    </div>
+ <!-- Modal CRUD pour les professions -->
+<div id="profession-modal" class="modal">
+    <div class="modal-content" style="max-width: 500px;">
+        <div class="modal-header">
+            <h3 class="modal-title" id="profession-modal-title">Ajouter une profession</h3>
+            <button class="modal-close" onclick="closeModal('profession')">&times;</button>
+        </div>
+        <form id="profession-form">
+            <input type="hidden" id="profession-id">
+            <div class="form-group">
+                <label for="profession-nom" class="required-field">Nom de la profession</label>
+                <input type="text" id="profession-nom" required>
+            </div>
+            <div class="form-group">
+                <label for="profession-description">Description</label>
+                <textarea id="profession-description" rows="3"></textarea>
+            </div>
+            <div class="form-group">
+                <label for="profession-categorie">Catégorie</label>
+                <select id="profession-categorie">
+                    <option value="">Non catégorisé</option>
+                    <option value="Santé">Santé</option>
+                    <option value="Éducation">Éducation</option>
+                    <option value="Administration">Administration</option>
+                    <option value="Commerce">Commerce</option>
+                    <option value="Technique">Technique</option>
+                    <option value="Autre">Autre</option>
+                </select>
+            </div>
+            <div style="display: flex; justify-content: flex-end; gap: 1rem; margin-top: 2rem;">
+                <button type="button" class="btn btn-outline" onclick="closeModal('profession')">
+                    Annuler
+                </button>
+                <button type="submit" class="btn btn-success" id="profession-submit-btn">
+                    <i class="fas fa-save"></i> Enregistrer
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal CRUD pour les diagnostics -->
+<div id="diagnostic-modal" class="modal">
+    <div class="modal-content" style="max-width: 600px;">
+        <div class="modal-header">
+            <h3 class="modal-title" id="diagnostic-modal-title">Ajouter un diagnostic</h3>
+            <button class="modal-close" onclick="closeModal('diagnostic')">&times;</button>
+        </div>
+        <form id="diagnostic-form">
+            <input type="hidden" id="diagnostic-id">
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="diagnostic-code" class="required-field">Code CIM-10</label>
+                    <input type="text" id="diagnostic-code" required placeholder="Ex: F41.1">
+                </div>
+                <div class="form-group">
+                    <label for="diagnostic-categorie">Catégorie</label>
+                    <select id="diagnostic-categorie">
+                        <option value="">Sélectionnez</option>
+                        <option value="Troubles anxieux">Troubles anxieux</option>
+                        <option value="Troubles de l'humeur">Troubles de l'humeur</option>
+                        <option value="Troubles psychotiques">Troubles psychotiques</option>
+                        <option value="Troubles alimentaires">Troubles alimentaires</option>
+                        <option value="Troubles addictifs">Troubles addictifs</option>
+                        <option value="Troubles neurologiques">Troubles neurologiques</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="diagnostic-nom" class="required-field">Nom du diagnostic</label>
+                <input type="text" id="diagnostic-nom" required>
+            </div>
+            <div class="form-group">
+                <label for="diagnostic-description">Description</label>
+                <textarea id="diagnostic-description" rows="4"></textarea>
+            </div>
+            <div class="form-group">
+                <label for="diagnostic-criteres">Critères diagnostiques</label>
+                <textarea id="diagnostic-criteres" rows="3" placeholder="Principaux critères..."></textarea>
+            </div>
+            <div style="display: flex; justify-content: flex-end; gap: 1rem; margin-top: 2rem;">
+                <button type="button" class="btn btn-outline" onclick="closeModal('diagnostic')">
+                    Annuler
+                </button>
+                <button type="submit" class="btn btn-success" id="diagnostic-submit-btn">
+                    <i class="fas fa-save"></i> Enregistrer
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal CRUD pour les traitements -->
+<div id="traitement-modal" class="modal">
+    <div class="modal-content" style="max-width: 600px;">
+        <div class="modal-header">
+            <h3 class="modal-title" id="traitement-modal-title">Ajouter un traitement</h3>
+            <button class="modal-close" onclick="closeModal('traitement')">&times;</button>
+        </div>
+        <form id="traitement-form">
+            <input type="hidden" id="traitement-id">
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="traitement-nom" class="required-field">Nom du traitement</label>
+                    <input type="text" id="traitement-nom" required>
+                </div>
+                <div class="form-group">
+                    <label for="traitement-type">Type</label>
+                    <select id="traitement-type">
+                        <option value="">Sélectionnez</option>
+                        <option value="Médicamenteux">Médicamenteux</option>
+                        <option value="Psychothérapie">Psychothérapie</option>
+                        <option value="Électroconvulsivothérapie">Électroconvulsivothérapie</option>
+                        <option value="Réhabilitation">Réhabilitation</option>
+                        <option value="Autre">Autre</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="traitement-description">Description</label>
+                <textarea id="traitement-description" rows="4" placeholder="Posologie, durée, effets..."></textarea>
+            </div>
+            <div class="form-group">
+                <label for="traitement-indications">Indications</label>
+                <textarea id="traitement-indications" rows="3" placeholder="Diagnostics concernés..."></textarea>
+            </div>
+            <div class="form-group">
+                <label for="traitement-contreindications">Contre-indications</label>
+                <textarea id="traitement-contreindications" rows="2"></textarea>
+            </div>
+            <div style="display: flex; justify-content: flex-end; gap: 1rem; margin-top: 2rem;">
+                <button type="button" class="btn btn-outline" onclick="closeModal('traitement')">
+                    Annuler
+                </button>
+                <button type="submit" class="btn btn-success" id="traitement-submit-btn">
+                    <i class="fas fa-save"></i> Enregistrer
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+    
+    <script>
+        // Variables globales
+        let allPatients = [];
+        let allConsultations = [];
+        
+        // Initialisation
+        document.addEventListener('DOMContentLoaded', function() {
+            updateDate();
+            loadInitialData();
+            setupEventListeners();
+            loadWilayas();
+            loadPatientsForSelect();
+            
+            // Afficher la section dashboard par défaut
+            showSection('dashboard');
+        });
+        
+        function updateDate() {
+            const now = new Date();
+            const options = { 
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+            };
+            document.getElementById('current-date').textContent = 
+                now.toLocaleDateString('fr-FR', options);
+        }
+        
+        async function loadInitialData() {
+            try {
+                const [patients, consultations] = await Promise.all([
+                    fetch('/api/patients').then(r => r.json()),
+                    fetch('/api/consultations').then(r => r.json())
+                ]);
+                
+                allPatients = patients;
+                allConsultations = consultations;
+                
+                // Mettre à jour les compteurs
+                document.getElementById('patient-count').textContent = patients.length;
+                document.getElementById('consultation-count').textContent = consultations.length;
+                
+                // Afficher les données
+                displayRecentPatients(patients.slice(0, 5));
+                displayAllPatients(patients);
+                displayUpcomingConsultations(consultations.slice(0, 5));
+                displayAllConsultations(consultations);
+                
+            } catch (error) {
+                console.error('Erreur chargement données:', error);
+                showNotification('Erreur de chargement des données', 'danger');
+            }
+        }
+        
+        // === FONCTIONS UNIFIÉES POUR WILAYA/COMMUNE ===
+
+// 1. Charge TOUTES les wilayas dans TOUS les selects
+async function loadAllWilayas() {
+    try {
+        console.log('Chargement des wilayas...');
+        const response = await fetch('/api/references/wilayas');
+        
+        if (!response.ok) {
+            throw new Error(`Erreur API: ${response.status}`);
+        }
+        
+        const wilayas = await response.json();
+        
+        // Liste de TOUS les selects de wilaya dans votre formulaire
+        const wilayaSelectIds = [
+            'wilaya_naissance',    // Wilaya de naissance
+            'wilaya_residence',    // Wilaya de résidence
+            'patient-wilaya-cin',  // Wilaya CIN (si existant)
+            'patient-wilaya'       // Ancien champ (à supprimer si non utilisé)
+        ];
+        
+        wilayaSelectIds.forEach(selectId => {
+            const select = document.getElementById(selectId);
+            if (select) {
+                const currentValue = select.value;
+                select.innerHTML = '<option value="">Sélectionnez une wilaya</option>';
+                
+                wilayas.forEach(wilaya => {
+                    const option = document.createElement('option');
+                    // Utiliser le code (ex: "16") comme valeur
+                    option.value = wilaya.code || wilaya.id || wilaya.Code_Wilaya;
+                    // Afficher le format "16 - Alger"
+                    option.textContent = `${wilaya.code || wilaya.Code_Wilaya} - ${wilaya.nom || wilaya.Nom_Wilaya || wilaya.Nom}`;
+                    select.appendChild(option);
+                });
+                
+                // Restaurer la valeur précédente si elle existe
+                if (currentValue) {
+                    select.value = currentValue;
+                }
+            }
+        });
+        
+        console.log(`✅ ${wilayas.length} wilayas chargées`);
+        return wilayas;
+        
+    } catch (error) {
+        console.error('❌ Erreur chargement wilayas:', error);
+        showNotification('Erreur de chargement des wilayas', 'danger');
+        return [];
+    }
+}
+
+// 2. Fonction UNIFIÉE pour charger les communes
+async function loadCommunes(wilayaCode, targetSelectId) {
+    try {
+        const select = document.getElementById(targetSelectId);
+        
+        if (!select) {
+            console.error(`❌ Select ${targetSelectId} non trouvé`);
+            return;
+        }
+        
+        // Si pas de code wilaya, désactiver et vider le select
+        if (!wilayaCode || wilayaCode === '') {
+            select.innerHTML = '<option value="">Sélectionnez d\'abord une wilaya</option>';
+            select.disabled = true;
+            return;
+        }
+        
+        // Activer et montrer "chargement"
+        select.disabled = false;
+        select.innerHTML = '<option value="">Chargement...</option>';
+        
+        console.log(`Chargement communes pour wilaya: ${wilayaCode}, target: ${targetSelectId}`);
+        
+        // Appeler l'API
+        const response = await fetch(`/api/references/communes/${wilayaCode}`);
+        
+        if (!response.ok) {
+            throw new Error(`Erreur API: ${response.status}`);
+        }
+        
+        const communes = await response.json();
+        
+        // Vider et remplir avec les communes
+        select.innerHTML = '<option value="">Sélectionnez une commune</option>';
+        
+        communes.forEach(commune => {
+            const option = document.createElement('option');
+            // Utiliser l'ID ou le code comme valeur
+            option.value = commune.id || commune.code || commune.Code_Commune;
+            option.textContent = commune.nom || commune.Nom_Commune || commune.Nom;
+            select.appendChild(option);
+        });
+        
+        console.log(`✅ ${communes.length} communes chargées pour ${targetSelectId}`);
+        
+    } catch (error) {
+        console.error(`❌ Erreur chargement communes pour ${targetSelectId}:`, error);
+        const select = document.getElementById(targetSelectId);
+        if (select) {
+            select.innerHTML = '<option value="">Erreur de chargement</option>';
+            select.disabled = true;
+        }
+        showNotification('Erreur de chargement des communes', 'danger');
+    }
+}
+
+// 3. Fonction UNIFIÉE pour initialiser TOUTES les dépendances
+function initAllDependencies() {
+    console.log('Initialisation des dépendances wilaya→commune...');
+    
+    // 1. Dépendance NAISSANCE
+    const wilayaNaissance = document.getElementById('wilaya_naissance');
+    const communeNaissance = document.getElementById('commune_naissance');
+    
+    if (wilayaNaissance && communeNaissance) {
+        wilayaNaissance.addEventListener('change', function() {
+            console.log(`Wilaya naissance changée: ${this.value}`);
+            loadCommunes(this.value, 'commune_naissance');
+        });
+        
+        // Initialiser l'état si une valeur est déjà sélectionnée
+        if (wilayaNaissance.value) {
+            loadCommunes(wilayaNaissance.value, 'commune_naissance');
+        }
+    }
+    
+    // 2. Dépendance RÉSIDENCE
+    const wilayaResidence = document.getElementById('wilaya_residence');
+    const communeResidence = document.getElementById('commune_residence');
+    
+    if (wilayaResidence && communeResidence) {
+        wilayaResidence.addEventListener('change', function() {
+            console.log(`Wilaya résidence changée: ${this.value}`);
+            loadCommunes(this.value, 'commune_residence');
+        });
+        
+        // Initialiser l'état si une valeur est déjà sélectionnée
+        if (wilayaResidence.value) {
+            loadCommunes(wilayaResidence.value, 'commune_residence');
+        }
+    }
+    
+    // 3. Dépendance CIN (si vous avez ces champs)
+    const wilayaCin = document.getElementById('patient-wilaya-cin');
+    const communeCin = document.getElementById('patient-commune-cin');
+    
+    if (wilayaCin && communeCin) {
+        wilayaCin.addEventListener('change', function() {
+            console.log(`Wilaya CIN changée: ${this.value}`);
+            loadCommunes(this.value, 'patient-commune-cin');
+        });
+    }
+    
+    console.log('✅ Dépendances wilaya→commune initialisées');
+}
+
+// 4. Fonction UNIFIÉE pour charger les professions
+async function loadProfessions() {
+    try {
+        console.log('Chargement des professions...');
+        
+        const select = document.getElementById('profession_id');
+        if (!select) {
+            console.log('Select profession_id non trouvé');
+            return;
+        }
+        
+        // Vérifier si l'API des professions existe
+        try {
+            const response = await fetch('/api/references/professions');
+            
+            if (!response.ok) {
+                console.warn('API professions non disponible, utilisation des valeurs par défaut');
+                // Valeurs par défaut
+                const defaultProfessions = [
+                    { id: 1, nom: "Sans profession" },
+                    { id: 2, nom: "Étudiant" },
+                    { id: 3, nom: "Fonctionnaire" },
+                    { id: 4, nom: "Cadre" },
+                    { id: 5, nom: "Ouvrier" },
+                    { id: 6, nom: "Retraité" },
+                    { id: 7, nom: "Agriculteur" },
+                    { id: 8, nom: "Commerçant" },
+                    { id: 9, nom: "Profession libérale" }
+                ];
+                
+                fillProfessionsSelect(defaultProfessions);
+                return;
+            }
+            
+            const professions = await response.json();
+            fillProfessionsSelect(professions);
+            
+        } catch (error) {
+            console.warn('Erreur API professions, utilisation des valeurs par défaut:', error);
+            const defaultProfessions = [
+                { id: 1, nom: "Sans profession" },
+                { id: 2, nom: "Étudiant" },
+                { id: 3, nom: "Fonctionnaire" }
+            ];
+            fillProfessionsSelect(defaultProfessions);
+        }
+        
+    } catch (error) {
+        console.error('Erreur chargement professions:', error);
+    }
+}
+
+// Fonction helper pour remplir le select des professions
+function fillProfessionsSelect(professions) {
+    const select = document.getElementById('profession_id');
+    if (!select) return;
+    
+    select.innerHTML = '<option value="">Sélectionnez une profession</option>';
+    
+    professions.forEach(profession => {
+        const option = document.createElement('option');
+        option.value = profession.id;
+        option.textContent = profession.nom;
+        select.appendChild(option);
+    });
+    
+    console.log(`✅ ${professions.length} professions chargées`);
+}
+
+// === INITIALISATION CORRECTE ===
+
+// MODIFIEZ VOTRE EVENT LISTENER DOMContentLoaded :
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Initialisation de l\'application...');
+    
+    // 1. Mettre à jour la date
+    updateDate();
+    
+    // 2. Initialiser les dépendances (DOIT ÊTRE APRÈS loadAllWilayas)
+    initAllDependencies();
+    
+    // 3. Charger les données initiales
+    loadInitialData();
+    
+    // 4. Charger les wilayas et professions
+    loadAllWilayas().then(() => {
+        // Après chargement des wilayas, initialiser les dépendances
+        // Les dépendances sont déjà initialisées, mais on peut vérifier l'état
+        console.log('Wilayas chargées, vérification des dépendances...');
+    });
+    
+    loadProfessions();
+    
+    // 5. Charger les patients pour le select des consultations
+    loadPatientsForSelect();
+    
+    // 6. Afficher la section dashboard par défaut
+    showSection('dashboard');
+    
+    // 7. Configurer les écouteurs d'événements
+    setupEventListeners();
+    
+    console.log('✅ Application initialisée');
+});
+
+// === SUPPRIMEZ CES FONCTIONS DUPLIQUÉES (si elles existent) ===
+/*
+// SUPPRIMEZ ces fonctions :
+function loadWilayas() { ... }           // Duplique loadAllWilayas
+function chargerCommunes() { ... }       // Duplique loadCommunes
+function chargerWilayas() { ... }        // Duplique loadAllWilayas
+function initWilayaCommuneDependencies() { ... } // Duplique initAllDependencies
+function chargerProfessions() { ... }    // Duplique loadProfessions
+function initialiserSelections() { ... } // Duplique initAllDependencies
+*/
+    
+    // Charger les professions si vous avez ajouté cette fonction
+    if (typeof loadProfessions === 'function') {
+        loadProfessions();
+    }
+
+
+// Appeler l'initialisation au chargement de la page
+document.addEventListener('DOMContentLoaded', function() {
+    // Charger les wilayas d'abord
+    chargerWilayas();
+    
+    
+});
+
+        async function loadPatientsForSelect() {
+            try {
+                const response = await fetch('/api/patients');
+                const patients = await response.json();
+                
+                const select = document.getElementById('consultation-patient');
+                select.innerHTML = '<option value="">Sélectionnez un patient</option>';
+                
+                patients.forEach(patient => {
+                    const option = document.createElement('option');
+                    option.value = patient.id;
+                    option.textContent = `${patient.prenom || ''} ${patient.nom || ''}`.trim() || `Patient #${patient.id}`;
+                    select.appendChild(option);
+                });
+                
+            } catch (error) {
+                console.error('Erreur chargement patients:', error);
+            }
+        }
+        
+        function displayRecentPatients(patients) {
+            const container = document.getElementById('recent-patients');
+            
+            if (!patients || patients.length === 0) {
+                container.innerHTML = `
+                    <p style="padding: 2rem; text-align: center; color: var(--gray);">
+                        Aucun patient enregistré
+                    </p>
+                `;
+                return;
+            }
+            
+            let html = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Nom</th>
+                            <th>Prénom</th>
+                            <th>Âge</th>
+                            <th>Dernière consultation</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+            
+            patients.forEach(patient => {
+                const patientConsultations = allConsultations.filter(c => c.patientId === patient.id);
+                const lastConsultation = patientConsultations.length > 0 
+                    ? new Date(Math.max(...patientConsultations.map(c => new Date(c.date))))
+                    : null;
+                
+                html += `
+                    <tr>
+                        <td><strong>${patient.nom || 'N/A'}</strong></td>
+                        <td>${patient.prenom || ''}</td>
+                        <td>${patient.age || 'N/A'}</td>
+                        <td>${lastConsultation ? lastConsultation.toLocaleDateString('fr-FR') : 'Jamais'}</td>
+                        <td>
+                            <button class="btn" style="padding: 0.25rem 0.75rem; background: var(--info); color: white;" 
+                                    onclick="viewPatientDetails(${patient.id})">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+            
+            html += '</tbody></table>';
+            container.innerHTML = html;
+        }
+        
+        function displayAllPatients(patients) {
+            const container = document.getElementById('all-patients');
+            
+            if (!patients || patients.length === 0) {
+                container.innerHTML = `
+                    <div style="padding: 3rem; text-align: center;">
+                        <i class="fas fa-user-slash" style="font-size: 3rem; color: var(--gray); margin-bottom: 1rem;"></i>
+                        <h4 style="color: var(--gray);">Aucun patient enregistré</h4>
+                        <button class="btn btn-success" onclick="openModal('add-patient')" style="margin-top: 1rem;">
+                            <i class="fas fa-user-plus"></i> Ajouter le premier patient
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+            
+            let html = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nom</th>
+                            <th>Prénom</th>
+                            <th>Âge/Sexe</th>
+                            <th>Téléphone</th>
+                            <th>Consultations</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+            
+            patients.forEach(patient => {
+                const patientConsultations = allConsultations.filter(c => c.patientId === patient.id);
+                const consultationsCount = patientConsultations.length;
+                
+                html += `
+                    <tr>
+                        <td>${patient.id || 'N/A'}</td>
+                        <td><strong>${patient.nom || 'N/A'}</strong></td>
+                        <td>${patient.prenom || ''}</td>
+                        <td>${patient.age || 'N/A'} ${patient.sexe ? `(${patient.sexe})` : ''}</td>
+                        <td>${patient.telephone || '-'}</td>
+                        <td>
+                            <span class="badge ${consultationsCount > 0 ? 'badge-info' : 'badge-warning'}">
+                                ${consultationsCount} consultation${consultationsCount !== 1 ? 's' : ''}
+                            </span>
+                        </td>
+                        <td>
+                            <div style="display: flex; gap: 0.5rem;">
+                                <button class="btn" style="padding: 0.25rem 0.75rem; background: var(--info); color: white;"
+                                        onclick="viewPatientDetails(${patient.id})">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <button class="btn" style="padding: 0.25rem 0.75rem; background: var(--warning); color: white;"
+                                        onclick="editPatient(${patient.id})">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn" style="padding: 0.25rem 0.75rem; background: var(--danger); color: white;"
+                                        onclick="deletePatient(${patient.id})">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                                <button class="btn" style="padding: 0.25rem 0.75rem; background: var(--success); color: white;"
+                                        onclick="addConsultationForPatient(${patient.id})">
+                                    <i class="fas fa-calendar-plus"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+            
+            html += '</tbody></table>';
+            container.innerHTML = html;
+        }
+        
+        function displayUpcomingConsultations(consultations) {
+            const container = document.getElementById('upcoming-consultations');
+            
+            if (!consultations || consultations.length === 0) {
+                container.innerHTML = `
+                    <p style="padding: 2rem; text-align: center; color: var(--gray);">
+                        Aucune consultation programmée
+                    </p>
+                `;
+                return;
+            }
+            
+            let html = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Patient</th>
+                            <th>Praticien</th>
+                            <th>Motif</th>
+                            <th>Statut</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+            
+            consultations.forEach(consultation => {
+                const date = new Date(consultation.date);
+                const patient = allPatients.find(p => p.id === consultation.patientId);
+                const patientName = patient ? `${patient.prenom} ${patient.nom}` : 'Patient inconnu';
+                const status = date > new Date() ? 'À venir' : 'Passée';
+                
+                html += `
+                    <tr>
+                        <td>
+                            ${date.toLocaleDateString('fr-FR')}<br>
+                            <small>${date.toLocaleTimeString('fr-FR', {hour: '2-digit', minute:'2-digit'})}</small>
+                        </td>
+                        <td>${patientName}</td>
+                        <td>${consultation.praticien || 'Non spécifié'}</td>
+                        <td>${consultation.motif ? consultation.motif.substring(0, 30) + '...' : 'Consultation'}</td>
+                        <td>
+                            <span class="badge ${status === 'À venir' ? 'badge-success' : 'badge-warning'}">
+                                ${consultation.statut || status}
+                            </span>
+                        </td>
+                    </tr>
+                `;
+            });
+            
+            html += '</tbody></table>';
+            container.innerHTML = html;
+        }
+        
+        function displayAllConsultations(consultations) {
+            const container = document.getElementById('all-consultations');
+            
+            if (!consultations || consultations.length === 0) {
+                container.innerHTML = `
+                    <div style="padding: 3rem; text-align: center;">
+                        <i class="fas fa-calendar-times" style="font-size: 3rem; color: var(--gray); margin-bottom: 1rem;"></i>
+                        <h4 style="color: var(--gray);">Aucune consultation enregistrée</h4>
+                        <button class="btn btn-success" onclick="openModal('add-consultation')" style="margin-top: 1rem;">
+                            <i class="fas fa-calendar-plus"></i> Programmer une consultation
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+            
+            let html = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Patient</th>
+                            <th>Type</th>
+                            <th>Diagnostic</th>
+                            <th>Statut</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+            
+            consultations.forEach(consultation => {
+                const date = new Date(consultation.date);
+                const patient = allPatients.find(p => p.id === consultation.patientId);
+                const patientName = patient ? `${patient.prenom} ${patient.nom}` : 'Patient inconnu';
+                
+                html += `
+                    <tr>
+                        <td>
+                            ${date.toLocaleDateString('fr-FR')}<br>
+                            <small>${date.toLocaleTimeString('fr-FR', {hour: '2-digit', minute:'2-digit'})}</small>
+                        </td>
+                        <td><strong>${patientName}</strong></td>
+                        <td>${consultation.type || 'Consultation'}</td>
+                        <td>${consultation.diagnostic ? consultation.diagnostic.substring(0, 40) + '...' : '-'}</td>
+                        <td>
+                            <span class="badge ${getStatusBadgeClass(consultation.statut)}">
+                                ${consultation.statut || 'Planifiée'}
+                            </span>
+                        </td>
+                        <td>
+                            <div style="display: flex; gap: 0.5rem;">
+                                <button class="btn" style="padding: 0.25rem 0.75rem; background: var(--info); color: white;"
+                                        onclick="viewConsultationDetails(${consultation.id})">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <button class="btn" style="padding: 0.25rem 0.75rem; background: var(--danger); color: white;"
+                                        onclick="deleteConsultation(${consultation.id})">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+            
+            html += '</tbody></table>';
+            container.innerHTML = html;
+        }
+        
+        function getStatusBadgeClass(status) {
+            switch(status) {
+                case 'Terminée': return 'badge-success';
+                case 'Confirmée': return 'badge-info';
+                case 'Annulée': return 'badge-danger';
+                case 'Planifiée': return 'badge-warning';
+                default: return 'badge-info';
+            }
+        }
+        
+        function showSection(sectionId) {
+            // Cacher toutes les sections
+            const sections = ['dashboard', 'patients', 'consultations', 'doctors', 'stats', 'api', 'settings'];
+            sections.forEach(section => {
+                document.getElementById(`${section}-section`).style.display = 'none';
+            });
+            
+            // Afficher la section demandée
+            document.getElementById(`${sectionId}-section`).style.display = 'block';
+            
+            // Mettre à jour le menu
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            // Trouver et activer l'élément correspondant dans le menu
+            const menuItems = {
+                'dashboard': 0,
+                'patients': 1,
+                'consultations': 2,
+                'doctors': 3,
+                'stats': 4,
+                'api': 5,
+                'settings': 6
+            };
+            
+            if (menuItems[sectionId] !== undefined) {
+                document.querySelectorAll('.nav-item')[menuItems[sectionId]].classList.add('active');
+            }
+            
+            // Si on revient au dashboard, on recharge les données
+            if (sectionId === 'dashboard') {
+                refreshData();
+            }
+        }
+        
+        function openModal(modalId) {
+            document.getElementById(`${modalId}-modal`).style.display = 'flex';
+        }
+        
+        function closeModal(modalId) {
+            document.getElementById(`${modalId}-modal`).style.display = 'none';
+        }
+        
+        async function testEndpoint(endpoint) {
+            try {
+                const response = await fetch(endpoint);
+                const data = await response.json();
+                
+                alert(`✅ ${endpoint}\n\nStatut: ${response.status}\n\nRéponse:\n${JSON.stringify(data, null, 2)}`);
+                
+            } catch (error) {
+                alert(`❌ Erreur sur ${endpoint}\n\n${error.message}`);
+            }
+        }
+        
+        async function testAllAPIs() {
+            const endpoints = [
+                '/api/health',
+                '/api/patients',
+                '/api/consultations',
+                '/api/references/wilayas'
+            ];
+            
+            let results = "📊 Résultats des tests API:\n\n";
+            
+            for (const endpoint of endpoints) {
+                try {
+                    const startTime = Date.now();
+                    const response = await fetch(endpoint);
+                    const data = await response.json();
+                    const time = Date.now() - startTime;
+                    
+                    results += `✅ ${endpoint} - ${response.status} (${time}ms)\n`;
+                    
+                } catch (error) {
+                    results += `❌ ${endpoint} - ERREUR: ${error.message}\n`;
+                }
+            }
+            
+            alert(results);
+        }
+        
+        function refreshData() {
+            loadInitialData();
+            loadPatientsForSelect();
+            showNotification('Données actualisées', 'success');
+        }
+        
+        async function viewPatientDetails(patientId) {
+            try {
+                // Récupérer les données du patient
+                const response = await fetch(`/api/patients/${patientId}`);
+                const patient = await response.json();
+                
+                // Récupérer les consultations du patient
+                const consultationsResponse = await fetch(`/api/consultations?patientId=${patientId}`);
+                const consultations = await consultationsResponse.json();
+                
+                // Afficher les détails dans le modal
+                const content = document.getElementById('patient-details-content');
+                content.innerHTML = generatePatientDetailsHTML(patient, consultations);
+                
+                openModal('view-patient');
+                
+            } catch (error) {
+                console.error('Erreur chargement patient:', error);
+                showNotification('Erreur de chargement des détails du patient', 'danger');
+            }
+        }
+        
+        function generatePatientDetailsHTML(patient, consultations) {
+            return `
+                <div class="patient-info">
+                    <div style="display: flex; gap: 2rem; margin-bottom: 2rem;">
+                        <div style="flex: 1;">
+                            <h4 style="color: var(--primary); margin-bottom: 1rem;">Informations personnelles</h4>
+                            <p><strong>Nom:</strong> ${patient.nom || 'Non renseigné'}</p>
+                            <p><strong>Prénom:</strong> ${patient.prenom || 'Non renseigné'}</p>
+                            <p><strong>Date de naissance:</strong> ${patient.date_naissance ? new Date(patient.date_naissance).toLocaleDateString('fr-FR') : 'Non renseigné'}</p>
+                            <p><strong>Âge:</strong> ${patient.age || 'Non renseigné'}</p>
+                            <p><strong>Sexe:</strong> ${patient.sexe || 'Non renseigné'}</p>
+                            <p><strong>Situation familiale:</strong> ${patient.situation_familiale || 'Non renseigné'}</p>
+                        </div>
+                        
+                        <div style="flex: 1;">
+                            <h4 style="color: var(--primary); margin-bottom: 1rem;">Informations de contact</h4>
+                            <p><strong>Adresse:</strong> ${patient.adresse || 'Non renseigné'}</p>
+                            <p><strong>Téléphone:</strong> ${patient.telephone || 'Non renseigné'}</p>
+                            <p><strong>Email:</strong> ${patient.email || 'Non renseigné'}</p>
+                            <p><strong>Profession:</strong> ${patient.profession || 'Non renseigné'}</p>
+                            <p><strong>Wilaya:</strong> ${patient.wilaya || 'Non renseigné'}</p>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-bottom: 2rem;">
+                        <h4 style="color: var(--primary); margin-bottom: 1rem;">Antécédents médicaux</h4>
+                        <p><strong>Antécédents médicaux:</strong> ${patient.antecedents_medicaux || 'Non renseigné'}</p>
+                        <p><strong>Antécédents psychiatriques:</strong> ${patient.antecedents_psychiatriques || 'Non renseigné'}</p>
+                        <p><strong>Antécédents familiaux:</strong> ${patient.antecedents_familiaux || 'Non renseigné'}</p>
+                    </div>
+                    
+                    <div class="patient-consultations">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                            <h4 style="color: var(--primary);">Consultations (${consultations.length})</h4>
+                            <button class="btn btn-success" onclick="addConsultationForPatient(${patient.id})">
+                                <i class="fas fa-calendar-plus"></i> Nouvelle consultation
+                            </button>
+                        </div>
+                        
+                        ${consultations.length > 0 ? consultations.map(consultation => `
+                            <div class="consultation-item">
+                                <div class="consultation-header">
+                                    <strong>${new Date(consultation.date).toLocaleDateString('fr-FR')} - ${consultation.type || 'Consultation'}</strong>
+                                    <span class="badge ${getStatusBadgeClass(consultation.statut)}">
+                                        ${consultation.statut || 'Planifiée'}
+                                    </span>
+                                </div>
+                                <p><strong>Motif:</strong> ${consultation.motif || 'Non spécifié'}</p>
+                                <p><strong>Diagnostic:</strong> ${consultation.diagnostic || 'Non spécifié'}</p>
+                                <div class="consultation-actions">
+                                    <button class="btn" style="padding: 0.25rem 0.75rem; background: var(--info); color: white; font-size: 0.85rem;"
+                                            onclick="viewConsultationDetails(${consultation.id})">
+                                        <i class="fas fa-eye"></i> Détails
+                                    </button>
+                                    <button class="btn" style="padding: 0.25rem 0.75rem; background: var(--warning); color: white; font-size: 0.85rem;"
+                                            onclick="editConsultation(${consultation.id})">
+                                        <i class="fas fa-edit"></i> Modifier
+                                    </button>
+                                </div>
+                            </div>
+                        `).join('') : `
+                            <p style="text-align: center; color: var(--gray); padding: 1rem;">
+                                Aucune consultation pour ce patient
+                            </p>
+                        `}
+                    </div>
+                    
+                    <div style="display: flex; justify-content: flex-end; gap: 1rem; margin-top: 2rem;">
+                        <button class="btn btn-warning" onclick="editPatient(${patient.id})">
+                            <i class="fas fa-edit"></i> Modifier le patient
+                        </button>
+                        <button class="btn btn-outline" onclick="closeModal('view-patient')">
+                            Fermer
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function addConsultationForPatient(patientId) {
+            const select = document.getElementById('consultation-patient');
+            const patient = allPatients.find(p => p.id === patientId);
+            
+            if (patient) {
+                select.value = patientId;
+                closeModal('view-patient');
+                openModal('add-consultation');
+            }
+        }
+        
+        function viewConsultationDetails(consultationId) {
+            alert(`Visualisation consultation #${consultationId}\n(Fonctionnalité en développement)`);
+        }
+        
+        function editPatient(patientId) {
+            alert(`Modification patient #${patientId}\n(Fonctionnalité en développement)`);
+        }
+        
+        function editConsultation(consultationId) {
+            alert(`Modification consultation #${consultationId}\n(Fonctionnalité en développement)`);
+        }
+        
+        function deletePatient(patientId) {
+            if (confirm(`Êtes-vous sûr de vouloir supprimer le patient #${patientId} ?`)) {
+                alert(`Patient #${patientId} supprimé\n(Fonctionnalité en développement)`);
+            }
+        }
+        
+        function deleteConsultation(consultationId) {
+            if (confirm(`Êtes-vous sûr de vouloir supprimer la consultation #${consultationId} ?`)) {
+                alert(`Consultation #${consultationId} supprimée\n(Fonctionnalité en développement)`);
+            }
+        }
+        
+        function exportData() {
+            alert('Export des données en cours de développement');
+        }
+        
+        function showNotification(message, type = 'info') {
+            // Créer une notification temporaire
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                padding: 1rem 1.5rem;
+                background: ${type === 'success' ? 'var(--success)' : type === 'danger' ? 'var(--danger)' : 'var(--info)'};
+                color: white;
+                border-radius: 8px;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                z-index: 1000;
+                animation: slideIn 0.3s ease;
+            `;
+            
+            notification.innerHTML = `
+                <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'danger' ? 'exclamation-triangle' : 'info-circle'}"></i>
+                ${message}
+            `;
+            
+            document.body.appendChild(notification);
+            
+            // Supprimer après 3 secondes
+            setTimeout(() => {
+                notification.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+        
+        function setupEventListeners() {
+            // Gestion du formulaire patient
+            document.getElementById('patient-form').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const patientData = {
+                    nom: document.getElementById('patient-nom').value,
+                    prenom: document.getElementById('patient-prenom').value,
+                    date_naissance: document.getElementById('patient-date-naissance').value || null,
+                    age: document.getElementById('patient-age').value || null,
+                    lieu_naissance: document.getElementById('patient-lieu-naissance').value || null,
+                    wilaya: document.getElementById('patient-wilaya').value || null,
+                    sexe: document.getElementById('patient-sexe').value || null,
+                    situation_familiale: document.getElementById('patient-situation-familiale').value || null,
+                    adresse: document.getElementById('patient-adresse').value || null,
+                    telephone: document.getElementById('patient-telephone').value || null,
+                    email: document.getElementById('patient-email').value || null,
+                    profession: document.getElementById('patient-profession').value || null,
+                    antecedents_medicaux: document.getElementById('patient-antécédents-médicaux').value || null,
+                    antecedents_psychiatriques: document.getElementById('patient-antécédents-psychiatriques').value || null,
+                    antecedents_familiaux: document.getElementById('patient-antécédents-familiaux-détails').value || null,
+                   
+                    
+                    cin: document.getElementById('patient-cin').value || null,
+                    date_cin: document.getElementById('patient-date-cin').value || null,
+                    commune_cin: document.getElementById('patient-commune-cin').value || null,
+                    wilaya_cin: document.getElementById('patient-wilaya-cin').value || null,
+                   
+                };
+                
+                // Récupérer les antécédents familiaux cochés
+                const antecedentsFamiliaux = [];
+                document.querySelectorAll('input[name="antecedents-familiaux"]:checked').forEach(cb => {
+                    antecedentsFamiliaux.push(cb.value);
+                });
+                if (antecedentsFamiliaux.length > 0) {
+                    patientData.antecedents_familiaux = antecedentsFamiliaux.join(', ') + 
+                        (patientData.antecedents_familiaux ? ' - ' + patientData.antecedents_familiaux : '');
+                }
+                
+                console.log('Données patient:', patientData);
+                alert(`Patient ${patientData.prenom} ${patientData.nom} ajouté\n(Fonctionnalité en développement)`);
+                
+                closeModal('add-patient');
+                this.reset();
+            });
+            
+            // Gestion du formulaire consultation
+            document.getElementById('consultation-form').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const consultationData = {
+                    patientId: document.getElementById('consultation-patient').value,
+                    praticien: document.getElementById('consultation-praticien').value || null,
+                    date: document.getElementById('consultation-date').value,
+                    duree: document.getElementById('consultation-duration').value || 30,
+                    type: document.getElementById('consultation-type').value || null,
+                    statut: document.getElementById('consultation-statut').value || 'Planifiée',
+                    motif: document.getElementById('consultation-motif').value || null,
+                    symptomes: document.getElementById('consultation-symptomes-details').value || null,
+                    examen_mental: document.getElementById('consultation-examen-mental').value || null,
+                    diagnostic: document.getElementById('consultation-diagnostic').value || null,
+                    score_gaf: document.getElementById('consultation-score-gaf').value || null,
+                    traitement_prescrit: document.getElementById('consultation-traitement-prescrit').value || null,
+                    recommandations: document.getElementById('consultation-recommandations').value || null,
+                    prochaine_visite: document.getElementById('consultation-prochaine-visite').value || null,
+                    urgence: document.getElementById('consultation-urgence').value || 'Normal',
+                    tarif: document.getElementById('consultation-tarif').value || null,
+                    mode_paiement: document.getElementById('consultation-mode-paiement').value || null,
+                    notes_administratives: document.getElementById('consultation-notes-administratives').value || null
+                };
+                
+                // Récupérer les symptômes cochés
+                const symptomes = [];
+                document.querySelectorAll('input[name="symptomes"]:checked').forEach(cb => {
+                    symptomes.push(cb.value);
+                });
+                if (symptomes.length > 0) {
+                    consultationData.symptomes = symptomes.join(', ') + 
+                        (consultationData.symptomes ? ' - ' + consultationData.symptomes : '');
+                }
+                
+                console.log('Données consultation:', consultationData);
+                alert(`Consultation programmée\n(Fonctionnalité en développement)`);
+                
+                closeModal('add-consultation');
+                this.reset();
+            });
+            
+            // Calcul automatique de l'âge à partir de la date de naissance
+            document.getElementById('patient-date-naissance').addEventListener('change', updateBirthDate);
+        }
+        
+        function updateBirthDate() {
+            const birthDateInput = document.getElementById('patient-date-naissance');
+            const ageInput = document.getElementById('patient-age');
+            
+            if (birthDateInput.value) {
+                const birthDate = new Date(birthDateInput.value);
+                const today = new Date();
+                let age = today.getFullYear() - birthDate.getFullYear();
+                const monthDiff = today.getMonth() - birthDate.getMonth();
+                
+                if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+                    age--;
+                }
+                
+                ageInput.value = age;
+            }
+        }
+        
+        // Ajouter les animations CSS
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideIn {
+                from {
+                    transform: translateX(100%);
+                    opacity: 0;
+                }
+                to {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+            }
+            
+            @keyframes slideOut {
+                from {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+                to {
+                    transform: translateX(100%);
+                    opacity: 0;
+                }
+            }
+            
+            @keyframes fadeIn {
+                from { opacity: 0; transform: translateY(-10px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+        `;
+        document.head.appendChild(style);
+        // ============================================
+// FONCTIONS POUR L'UTILITAIRE D'ADMINISTRATION
+// ============================================
+
+// Variable pour suivre l'onglet actif
+let currentUtilityTab = 'professions';
+
+// Ouvrir un onglet de l'utilitaire
+function openUtilityTab(tabName) {
+    currentUtilityTab = tabName;
+    
+    // Mettre à jour les boutons d'onglet
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    event.target.classList.add('active');
+    
+    // Charger le contenu de l'onglet
+    loadUtilityTab(tabName);
+}
+
+// Charger le contenu d'un onglet
+async function loadUtilityTab(tabName) {
+    const container = document.getElementById('utilities-content');
+    
+    switch(tabName) {
+        case 'professions':
+            await loadProfessionsTable();
+            break;
+        case 'diagnostics':
+            await loadDiagnosticsTable();
+            break;
+        case 'wilayas':
+            await loadWilayasTable();
+            break;
+        case 'communes':
+            await loadCommunesTable();
+            break;
+        case 'traitements':
+            await loadTraitementsTable();
+            break;
+    }
+}
+
+// =================== PROFESSIONS ===================
+async function loadProfessionsTable() {
+    try {
+        const container = document.getElementById('utilities-content');
+        container.innerHTML = `
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                <h4><i class="fas fa-briefcase"></i> Gestion des professions</h4>
+                <button class="btn btn-success" onclick="openProfessionModal()">
+                    <i class="fas fa-plus"></i> Ajouter une profession
+                </button>
+            </div>
+            <div id="professions-table-container">
+                <div style="text-align: center; padding: 2rem;">
+                    <div class="spinner-border" style="width: 3rem; height: 3rem; color: var(--primary);"></div>
+                    <p style="margin-top: 1rem;">Chargement des professions...</p>
+                </div>
+            </div>
+        `;
+        
+        // Charger les données
+        const response = await fetch('/api/references/professions');
+        const professions = await response.json();
+        
+        // Générer le tableau
+        let html = `
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nom</th>
+                            <th>Catégorie</th>
+                            <th>Description</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+        `;
+        
+        if (professions.length === 0) {
+            html += `
+                <tr>
+                    <td colspan="5" style="text-align: center; padding: 2rem;">
+                        <i class="fas fa-inbox" style="font-size: 2rem; color: var(--gray); margin-bottom: 0.5rem;"></i>
+                        <p>Aucune profession enregistrée</p>
+                    </td>
+                </tr>
+            `;
+        } else {
+            professions.forEach(prof => {
+                html += `
+                    <tr>
+                        <td>${prof.id}</td>
+                        <td><strong>${prof.nom}</strong></td>
+                        <td><span class="badge badge-info">${prof.categorie || 'Non catégorisé'}</span></td>
+                        <td>${prof.description ? prof.description.substring(0, 50) + '...' : '-'}</td>
+                        <td>
+                            <div style="display: flex; gap: 0.5rem;">
+                                <button class="btn" style="padding: 0.25rem 0.75rem; background: var(--info); color: white;"
+                                        onclick="editProfession(${prof.id})">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn" style="padding: 0.25rem 0.75rem; background: var(--danger); color: white;"
+                                        onclick="deleteProfession(${prof.id})">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+        
+        html += '</tbody></table></div>';
+        document.getElementById('professions-table-container').innerHTML = html;
+        
+    } catch (error) {
+        console.error('Erreur chargement professions:', error);
+        document.getElementById('professions-table-container').innerHTML = `
+            <div class="alert alert-danger">
+                <i class="fas fa-exclamation-triangle"></i>
+                Erreur de chargement des professions
+            </div>
+        `;
+    }
+}
+
+// Ouvrir modal profession
+function openProfessionModal(professionId = null) {
+    const modal = document.getElementById('profession-modal');
+    const title = document.getElementById('profession-modal-title');
+    const form = document.getElementById('profession-form');
+    
+    if (professionId) {
+        title.textContent = 'Modifier la profession';
+        // Charger les données existantes
+        loadProfessionData(professionId);
+    } else {
+        title.textContent = 'Ajouter une profession';
+        form.reset();
+        document.getElementById('profession-id').value = '';
+    }
+    
+    modal.style.display = 'flex';
+}
+
+// Charger données profession
+async function loadProfessionData(id) {
+    try {
+        const response = await fetch(`/api/references/professions/${id}`);
+        const profession = await response.json();
+        
+        document.getElementById('profession-id').value = profession.id;
+        document.getElementById('profession-nom').value = profession.nom || '';
+        document.getElementById('profession-description').value = profession.description || '';
+        document.getElementById('profession-categorie').value = profession.categorie || '';
+        
+    } catch (error) {
+        console.error('Erreur chargement profession:', error);
+        showNotification('Erreur de chargement', 'danger');
+    }
+}
+
+// Gestion du formulaire profession
+document.getElementById('profession-form').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const professionData = {
+        nom: document.getElementById('profession-nom').value,
+        description: document.getElementById('profession-description').value,
+        categorie: document.getElementById('profession-categorie').value
+    };
+    
+    const professionId = document.getElementById('profession-id').value;
+    
+    try {
+        const url = professionId ? `/api/references/professions/${professionId}` : '/api/references/professions';
+        const method = professionId ? 'PUT' : 'POST';
+        
+        const response = await fetch(url, {
+            method: method,
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(professionData)
+        });
+        
+        if (response.ok) {
+            showNotification(professionId ? 'Profession mise à jour' : 'Profession ajoutée', 'success');
+            closeModal('profession');
+            loadProfessionsTable();
+            // Recharger aussi le select des professions dans le formulaire patient
+            loadProfessions();
+        } else {
+            throw new Error('Erreur serveur');
+        }
+        
+    } catch (error) {
+        console.error('Erreur sauvegarde profession:', error);
+        showNotification('Erreur de sauvegarde', 'danger');
+    }
+});
+
+// Supprimer une profession
+async function deleteProfession(id) {
+    if (!confirm('Êtes-vous sûr de vouloir supprimer cette profession ?')) return;
+    
+    try {
+        const response = await fetch(`/api/references/professions/${id}`, {
+            method: 'DELETE'
+        });
+        
+        if (response.ok) {
+            showNotification('Profession supprimée', 'success');
+            loadProfessionsTable();
+            loadProfessions(); // Recharger le select
+        } else {
+            throw new Error('Erreur serveur');
+        }
+    } catch (error) {
+        console.error('Erreur suppression profession:', error);
+        showNotification('Erreur de suppression', 'danger');
+    }
+}
+
+// Éditer une profession
+async function editProfession(id) {
+    openProfessionModal(id);
+}
+
+// =================== DIAGNOSTICS ===================
+async function loadDiagnosticsTable() {
+    try {
+        const container = document.getElementById('utilities-content');
+        container.innerHTML = `
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                <h4><i class="fas fa-stethoscope"></i> Gestion des diagnostics</h4>
+                <button class="btn btn-success" onclick="openDiagnosticModal()">
+                    <i class="fas fa-plus"></i> Ajouter un diagnostic
+                </button>
+            </div>
+            <div id="diagnostics-table-container">
+                <div style="text-align: center; padding: 2rem;">
+                    <div class="spinner-border" style="width: 3rem; height: 3rem; color: var(--primary);"></div>
+                    <p style="margin-top: 1rem;">Chargement des diagnostics...</p>
+                </div>
+            </div>
+        `;
+        
+        // NOTE: Vous devez créer cette API dans votre backend
+        const response = await fetch('/api/references/diagnostics');
+        const diagnostics = await response.json();
+        
+        // ... code similaire à professions ...
+        // Pour gagner du temps, je vais créer un template générique
+        
+    } catch (error) {
+        console.error('Erreur chargement diagnostics:', error);
+        showNotification('L\'API diagnostics n\'est pas encore implémentée', 'warning');
+    }
+}
+
+// =================== WILAYAS ===================
+async function loadWilayasTable() {
+    try {
+        const container = document.getElementById('utilities-content');
+        container.innerHTML = `
+            <div style="margin-bottom: 1.5rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                    <h4><i class="fas fa-map-marker-alt"></i> Gestion des wilayas</h4>
+                    <div>
+                        <button class="btn btn-info" onclick="importWilayasFromJSON()">
+                            <i class="fas fa-file-import"></i> Importer depuis JSON
+                        </button>
+                        <button class="btn btn-success" onclick="openWilayaModal()" style="margin-left: 0.5rem;">
+                            <i class="fas fa-plus"></i> Ajouter manuellement
+                        </button>
+                    </div>
+                </div>
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle"></i>
+                    Les wilayas sont généralement importées depuis le fichier JSON. Vous pouvez ajouter manuellement si nécessaire.
+                </div>
+            </div>
+            <div id="wilayas-table-container">
+                <div style="text-align: center; padding: 2rem;">
+                    <div class="spinner-border" style="width: 3rem; height: 3rem; color: var(--primary);"></div>
+                    <p style="margin-top: 1rem;">Chargement des wilayas...</p>
+                </div>
+            </div>
+        `;
+        
+        const response = await fetch('/api/references/wilayas');
+        const wilayas = await response.json();
+        
+        let html = `
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Code</th>
+                            <th>Nom</th>
+                            <th>Nombre de communes</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+        `;
+        
+        wilayas.forEach(wilaya => {
+            html += `
+                <tr>
+                    <td><strong>${wilaya.code || wilaya.id}</strong></td>
+                    <td>${wilaya.nom || wilaya.Nom_Wilaya}</td>
+                    <td>
+                        <span class="badge badge-info">${wilaya.nombre_communes || '?'}</span>
+                    </td>
+                    <td>
+                        <div style="display: flex; gap: 0.5rem;">
+                            <button class="btn" style="padding: 0.25rem 0.75rem; background: var(--warning); color: white;"
+                                    onclick="viewCommunesOfWilaya(${wilaya.code || wilaya.id})">
+                                <i class="fas fa-eye"></i> Communes
+                            </button>
+                            <button class="btn" style="padding: 0.25rem 0.75rem; background: var(--danger); color: white;"
+                                    onclick="deleteWilaya(${wilaya.code || wilaya.id})">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `;
+        });
+        
+        html += '</tbody></table></div>';
+        document.getElementById('wilayas-table-container').innerHTML = html;
+        
+    } catch (error) {
+        console.error('Erreur chargement wilayas:', error);
+        document.getElementById('wilayas-table-container').innerHTML = `
+            <div class="alert alert-danger">
+                <i class="fas fa-exclamation-triangle"></i>
+                Erreur de chargement des wilayas
+            </div>
+        `;
+    }
+}
+
+// Importer les wilayas depuis JSON
+async function importWilayasFromJSON() {
+    if (!confirm('Importer les wilayas depuis le fichier JSON ? Cela écrasera les données existantes.')) return;
+    
+    try {
+        const response = await fetch('/api/references/import-wilayas', {
+            method: 'POST'
+        });
+        
+        if (response.ok) {
+            showNotification('Wilayas importées avec succès', 'success');
+            loadWilayasTable();
+            loadAllWilayas(); // Recharger dans les selects
+        } else {
+            throw new Error('Erreur importation');
+        }
+    } catch (error) {
+        console.error('Erreur importation wilayas:', error);
+        showNotification('Erreur lors de l\'importation', 'danger');
+    }
+}
+
+// =================== COMMUNES ===================
+async function loadCommunesTable() {
+    try {
+        const container = document.getElementById('utilities-content');
+        container.innerHTML = `
+            <div style="margin-bottom: 1.5rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                    <h4><i class="fas fa-map-pin"></i> Gestion des communes</h4>
+                    <div>
+                        <button class="btn btn-info" onclick="importCommunesFromJSON()">
+                            <i class="fas fa-file-import"></i> Importer depuis JSON
+                        </button>
+                        <button class="btn btn-success" onclick="openCommuneModal()" style="margin-left: 0.5rem;">
+                            <i class="fas fa-plus"></i> Ajouter manuellement
+                        </button>
+                    </div>
+                </div>
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle"></i>
+                    Les communes sont généralement importées depuis le fichier JSON.
+                </div>
+            </div>
+            
+            <div class="form-row" style="margin-bottom: 1.5rem;">
+                <div class="form-group">
+                    <label for="filter-wilaya">Filtrer par wilaya</label>
+                    <select id="filter-wilaya" onchange="filterCommunesByWilaya(this.value)">
+                        <option value="">Toutes les wilayas</option>
+                        <!-- Rempli dynamiquement -->
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="search-commune">Rechercher une commune</label>
+                    <input type="text" id="search-commune" placeholder="Nom de la commune..." 
+                           oninput="searchCommunes(this.value)">
+                </div>
+            </div>
+            
+            <div id="communes-table-container">
+                <div style="text-align: center; padding: 2rem;">
+                    <div class="spinner-border" style="width: 3rem; height: 3rem; color: var(--primary);"></div>
+                    <p style="margin-top: 1rem;">Chargement des communes...</p>
+                </div>
+            </div>
+        `;
+        
+        // Charger les wilayas pour le filtre
+        await loadWilayasForFilter();
+        
+        // Charger toutes les communes
+        const response = await fetch('/api/references/all-communes');
+        const communes = await response.json();
+        
+        displayCommunesTable(communes);
+        
+    } catch (error) {
+        console.error('Erreur chargement communes:', error);
+        showNotification('Erreur de chargement des communes', 'danger');
+    }
+}
+
+// Charger les wilayas pour le filtre
+async function loadWilayasForFilter() {
+    try {
+        const response = await fetch('/api/references/wilayas');
+        const wilayas = await response.json();
+        
+        const select = document.getElementById('filter-wilaya');
+        select.innerHTML = '<option value="">Toutes les wilayas</option>';
+        
+        wilayas.forEach(wilaya => {
+            const option = document.createElement('option');
+            option.value = wilaya.code || wilaya.id;
+            option.textContent = `${wilaya.code} - ${wilaya.nom}`;
+            select.appendChild(option);
+        });
+    } catch (error) {
+        console.error('Erreur chargement wilayas pour filtre:', error);
+    }
+}
+
+// Afficher le tableau des communes
+function displayCommunesTable(communes) {
+    let html = `
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Code</th>
+                        <th>Nom</th>
+                        <th>Wilaya</th>
+                        <th>Code Postal</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+    `;
+    
+    if (communes.length === 0) {
+        html += `
+            <tr>
+                <td colspan="5" style="text-align: center; padding: 2rem;">
+                    <i class="fas fa-inbox" style="font-size: 2rem; color: var(--gray);"></i>
+                    <p>Aucune commune trouvée</p>
+                </td>
+            </tr>
+        `;
+    } else {
+        communes.forEach(commune => {
+            html += `
+                <tr>
+                    <td>${commune.code || commune.id}</td>
+                    <td><strong>${commune.nom || commune.Nom_Commune}</strong></td>
+                    <td>${commune.wilaya_nom || commune.Wilaya || '-'}</td>
+                    <td>${commune.code_postal || '-'}</td>
+                    <td>
+                        <div style="display: flex; gap: 0.5rem;">
+                            <button class="btn" style="padding: 0.25rem 0.75rem; background: var(--info); color: white;"
+                                    onclick="editCommune(${commune.id || commune.code})">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn" style="padding: 0.25rem 0.75rem; background: var(--danger); color: white;"
+                                    onclick="deleteCommune(${commune.id || commune.code})">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `;
+        });
+    }
+    
+    html += '</tbody></table></div>';
+    document.getElementById('communes-table-container').innerHTML = html;
+}
+
+// =================== FONCTIONS GÉNÉRIQUES ===================
+
+// Fermer un modal spécifique
+function closeModal(modalType) {
+    document.getElementById(`${modalType}-modal`).style.display = 'none';
+}
+
+// Ajoutez ce style CSS pour les onglets
+const utilityStyles = `
+    /* Styles pour les onglets de l'utilitaire */
+    .tabs {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-bottom: 2rem;
+    }
+    
+    .tab-btn {
+        padding: 0.75rem 1.5rem;
+        background: var(--light);
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 600;
+        color: var(--gray);
+        transition: all 0.3s;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .tab-btn:hover {
+        background: var(--border);
+        color: var(--dark);
+    }
+    
+    .tab-btn.active {
+        background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+        color: white;
+    }
+    
+    /* Spinner pour chargement */
+    .spinner-border {
+        display: inline-block;
+        width: 2rem;
+        height: 2rem;
+        border: 0.25em solid currentColor;
+        border-right-color: transparent;
+        border-radius: 50%;
+        animation: spinner-border .75s linear infinite;
+    }
+    
+    @keyframes spinner-border {
+        to { transform: rotate(360deg); }
+    }
+    
+    /* Boutons d'action miniatures */
+    .action-buttons {
+        display: flex;
+        gap: 0.25rem;
+    }
+    
+    .action-btn {
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 0.9rem;
+        transition: all 0.2s;
+    }
+    
+    .action-btn:hover {
+        transform: translateY(-2px);
+    }
+    
+    .action-btn.edit {
+        background: var(--info);
+        color: white;
+    }
+    
+    .action-btn.delete {
+        background: var(--danger);
+        color: white;
+    }
+    
+    .action-btn.view {
+        background: var(--success);
+        color: white;
+    }
+`;
+
+// Ajouter les styles au document
+document.head.insertAdjacentHTML('beforeend', `<style>${utilityStyles}</style>`);
+        
+    </script>
+   
+</body>

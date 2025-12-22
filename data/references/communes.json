@@ -1,0 +1,27 @@
+{
+  "1": [
+    {"id": "101", "nom": "Alger-Centre"},
+    {"id": "102", "nom": "Sidi M'Hamed"},
+    {"id": "103", "nom": "El Madania"},
+    {"id": "104", "nom": "El Biar"},
+    {"id": "105", "nom": "Bouzareah"}
+  ],
+  "16": [
+    {"id": "1601", "nom": "Alger-Centre"},
+    {"id": "1602", "nom": "Bouzareah"},
+    {"id": "1603", "nom": "Bir Mourad Raïs"},
+    {"id": "1604", "nom": "Dély Ibrahim"},
+    {"id": "1605", "nom": "Bainem"}
+  ],
+  "31": [
+    {"id": "3101", "nom": "Oran Centre"},
+    {"id": "3102", "nom": "Es-Senia"},
+    {"id": "3103", "nom": "Bir El Djir"},
+    {"id": "3104", "nom": "Hassi Bounif"}
+  ],
+  "48": [
+    {"id": "4801", "nom": "Relizane Centre"},
+    {"id": "4802", "nom": "Oued Rhiou"},
+    {"id": "4803", "nom": "Zemmoura"}
+  ]
+}

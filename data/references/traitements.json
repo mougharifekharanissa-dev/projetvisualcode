@@ -1,0 +1,16 @@
+[
+  {
+    "id": 1,
+    "nom": "Sertraline",
+    "type": "Médicamenteux",
+    "categorie": "ISRS",
+    "description": "Antidépresseur inhibiteur sélectif"
+  },
+  {
+    "id": 2,
+    "nom": "TCC",
+    "type": "Psychothérapie",
+    "categorie": "Thérapie brève",
+    "description": "Thérapie cognitivo-comportementale"
+  }
+]

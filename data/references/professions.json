@@ -1,0 +1,18 @@
+[
+  {"id": 1, "nom": "Médecin"},
+  {"id": 2, "nom": "Infirmier"},
+  {"id": 3, "nom": "Enseignant"},
+  {"id": 4, "nom": "Ingénieur"},
+  {"id": 5, "nom": "Technicien"},
+  {"id": 6, "nom": "Commerçant"},
+  {"id": 7, "nom": "Artisan"},
+  {"id": 8, "nom": "Fonctionnaire"},
+  {"id": 9, "nom": "Étudiant"},
+  {"id": 10, "nom": "Chômeur"},
+  {"id": 11, "nom": "Retraité"},
+  {"id": 12, "nom": "Agriculteur"},
+  {"id": 13, "nom": "Avocat"},
+  {"id": 14, "nom": "Cadre"},
+  {"id": 15, "nom": "Ouvrier"},
+  {"id": 16, "nom": "Autre"}
+]

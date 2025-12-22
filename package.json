@@ -4,11 +4,9 @@
   "description": "Système de gestion de cabinet psychiatrique",
   "main": "start.js",
   "scripts": {
-    "start": "node start.js",
-    "dev": "nodemon start.js",
-    "web": "node start.js",
-    "cli": "node src/main.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "cd backend && node start.js",
+    "dev": "cd backend && nodemon start.js",
+    "frontend": "start frontend-html/public/index.html"
   },
   "keywords": [
     "psychiatrie",
