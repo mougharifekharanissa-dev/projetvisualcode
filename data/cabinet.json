@@ -1,0 +1,10 @@
+{
+  "nom": "Cabinet Psychiatrique Dr. Anissa",
+  "medecin": "Dr. Moughari Anissa",
+  "adresse": "123 Rue des Soins, Alger",
+  "telephone": "0550 12 34 56",
+  "email": "contact@cabinet-psychiatrique.dz",
+  "specialite": "Psychiatrie Générale",
+  "horaires": "Lundi-Vendredi: 9h-17h",
+  "createdAt": "2024-01-01"
+}

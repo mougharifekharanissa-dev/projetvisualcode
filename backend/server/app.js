@@ -1,4 +1,4 @@
-// server/app.js - Version utilisant le dossier routes/
+// server/app.js - Version corrigée
 const express = require('express');
 const cors = require('cors');
 const morgan = require('morgan');
@@ -11,54 +11,83 @@ console.log('🔧 Configuration du serveur Express...');
 const app = express();
 
 // ========== MIDDLEWARE ==========
-app.use(
-  helmet({
-    contentSecurityPolicy: false,  // Désactive CSP pour le développement
-  })
-);
+app.use(helmet({ contentSecurityPolicy: false }));
 app.use(cors());
 app.use(morgan('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
-// ========== IGNORER FAVICON ==========
 app.get('/favicon.ico', (req, res) => res.status(204).end());
 
 // ========== FICHIERS STATIQUES ==========
 const publicPath = path.join(__dirname, 'public');
-console.log('📁 Dossier statique:', publicPath);
-
-// Créer le dossier public s'il n'existe pas
-if (!fs.existsSync(publicPath)) {
-    fs.mkdirSync(publicPath, { recursive: true });
-}
-
+if (!fs.existsSync(publicPath)) fs.mkdirSync(publicPath, { recursive: true });
 app.use(express.static(publicPath));
 
 // ========== CHARGEMENT DES ROUTES ==========
-try {
-    console.log('🔄 Chargement des routes API...');
+console.log('🔄 Chargement des routes API...');
+
+// Liste des routes à charger
+const routesConfig = [
+    { file: './routes/patientRoutes', endpoint: '/api/patients' },
+    { file: './routes/consultationRoutes', endpoint: '/api/consultations' },
+    { file: './routes/referenceRoutes', endpoint: '/api/references' },
+    { file: './routes/symptomeRoutes', endpoint: '/api/symptomes' }
+];
+
+routesConfig.forEach(config => {
+    try {
+        const routeName = path.basename(config.file, '.js');
+        console.log(`📁 Chargement ${routeName}...`);
+        
+        const router = require(config.file);
+        app.use(config.endpoint, router);
+        
+        console.log(`✅ ${config.endpoint} montée`);
+    } catch (error) {
+        console.error(`❌ Erreur ${config.file}:`, error.message);
+        
+        // Route de secours pour éviter 404
+        app.get(config.endpoint, (req, res) => {
+            res.json({ 
+                message: `Route ${path.basename(config.file, '.js')} en cours de configuration`,
+                error: error.message,
+                timestamp: new Date()
+            });
+        });
+    }
+});
+
+// ========== ROUTES SYMPTÔMES DE SECOURS (À RETIRER APRÈS) ==========
+console.log('🩺 Ajout routes symptômes de secours...');
+
+// Route GET symptômes
+app.get('/api/symptomes', (req, res) => {
+    console.log('📋 GET /api/symptomes appelé');
+    res.json([
+        { id: 'symp_1', nom: 'Fièvre', description: 'Température élevée', gravite: 'modérée' },
+        { id: 'symp_2', nom: 'Toux', description: 'Toux sèche', gravite: 'légère' }
+    ]);
+});
+
+// Route POST symptômes
+app.post('/api/symptomes', (req, res) => {
+    console.log('➕ POST /api/symptomes appelé avec:', req.body);
     
-    // Charger les routes depuis le dossier routes/
-    const patientRoutes = require('./routes/patientRoutes');
-    const consultationRoutes = require('./routes/consultationRoutes');
-    const referenceRoutes = require('./routes/referenceRoutes');
+    if (!req.body.nom) {
+        return res.status(400).json({ message: 'Le nom est requis' });
+    }
     
-    // Utiliser les routes
-    app.use('/api/patients', patientRoutes);
-    app.use('/api/consultations', consultationRoutes);
-    app.use('/api/references', referenceRoutes);
+    const newSymptome = {
+        id: 'symp_' + Date.now(),
+        nom: req.body.nom,
+        description: req.body.description || '',
+        code: req.body.code || '',
+        gravite: req.body.gravite || 'modérée',
+        dateCreation: new Date()
+    };
     
-    console.log('✅ Routes API chargées avec succès');
-} catch (error) {
-    console.error('❌ Erreur chargement routes:', error.message);
-    console.log('⚠️  Utilisation des routes par défaut...');
-    
-    // Routes par défaut si les fichiers routes/ n'existent pas
-    app.get('/api/patients', (req, res) => res.json([]));
-    app.get('/api/consultations', (req, res) => res.json([]));
-    app.get('/api/references/wilayas', (req, res) => res.json([]));
-}
+    res.status(201).json(newSymptome);
+});
 
 // ========== ROUTE DE SANTÉ ==========
 app.get('/api/health', (req, res) => {
@@ -68,76 +97,65 @@ app.get('/api/health', (req, res) => {
         timestamp: new Date().toISOString(),
         routes: {
             patients: '/api/patients',
-            consultations: '/api/consultations',
-            references: '/api/references'
+            consultations: '/api/consultations', 
+            references: '/api/references',
+            symptomes: '/api/symptomes'  // <-- Maintenant incluse
         }
     });
 });
 
-// ========== ROUTES HTML ==========
-
-// Page d'accueil
+// ========== ROUTE RACINE ==========
 app.get('/', (req, res) => {
-    const indexPath = path.join(publicPath, 'index.html');
-    
-    if (fs.existsSync(indexPath)) {
-        res.sendFile(indexPath);
-    } else {
-        res.send(`
-            <!DOCTYPE html>
-            <html>
-            <head>
-                <title>Cabinet Psychiatrique</title>
-                <style>
-                    body { font-family: Arial; padding: 40px; text-align: center; }
-                    h1 { color: #667eea; }
-                    .card { 
-                        background: white; 
-                        padding: 30px; 
-                        border-radius: 10px; 
-                        box-shadow: 0 4px 6px rgba(0,0,0,0.1); 
-                        display: inline-block;
-                    }
-                    .routes { 
-                        text-align: left; 
-                        margin: 20px 0; 
-                        padding: 15px;
-                        background: #f8f9fa;
-                        border-radius: 5px;
-                    }
-                </style>
-            </head>
-            <body style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh;">
-                <div class="card">
-                    <h1>🏥 Cabinet Psychiatrique</h1>
-                    <p>Interface web en cours de configuration</p>
-                    
-                    <div class="routes">
-                        <h3>Routes API disponibles :</h3>
-                        <ul>
-                            <li><a href="/api/health" target="_blank">/api/health</a> - Vérification serveur</li>
-                            <li><a href="/api/patients" target="_blank">/api/patients</a> - Liste des patients</li>
-                            <li><a href="/api/consultations" target="_blank">/api/consultations</a> - Liste des consultations</li>
-                            <li><a href="/api/references/wilayas" target="_blank">/api/references/wilayas</a> - Liste des wilayas</li>
-                        </ul>
-                    </div>
-                    
-                    <p>Créez <code>server/public/index.html</code> pour l'interface complète.</p>
-                </div>
-            </body>
-            </html>
-        `);
-    }
+    res.send(`
+        <!DOCTYPE html>
+        <html>
+        <head><title>Cabinet Psychiatrique</title></head>
+        <body style="font-family: Arial; padding: 40px;">
+            <h1>🏥 Cabinet Psychiatrique - API</h1>
+            <h3>Routes disponibles:</h3>
+            <ul>
+                <li><a href="/api/health">/api/health</a> - Santé du serveur</li>
+                <li><a href="/api/patients">/api/patients</a> - Patients</li>
+                <li><a href="/api/consultations">/api/consultations</a> - Consultations</li>
+                <li><a href="/api/symptomes">/api/symptomes</a> - <strong>Symptômes (TEST)</strong></li>
+            </ul>
+            <h3>Test POST symptôme:</h3>
+            <button onclick="testPost()">Tester POST /api/symptomes</button>
+            <script>
+                async function testPost() {
+                    const response = await fetch('/api/symptomes', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            nom: 'Test HTML',
+                            description: 'Depuis la page HTML',
+                            code: 'HTML001'
+                        })
+                    });
+                    const data = await response.json();
+                    alert('Créé: ' + data.id);
+                }
+            </script>
+        </body>
+        </html>
+    `);
 });
 
-// ========== GESTION ERREURS ==========
-app.use((err, req, res, next) => {
-    console.error('🔥 ERREUR SERVEUR:', err.message);
-    res.status(500).json({ 
-        error: 'Erreur serveur interne',
-        message: err.message 
+// ========== DÉMARRAGE ==========
+const PORT = process.env.PORT || 3000;
+
+// Ne pas exporter si c'est le fichier principal
+if (require.main === module) {
+    app.listen(PORT, () => {
+        console.log(`\n🎯 Serveur démarré sur http://localhost:${PORT}`);
+        console.log('📡 Routes disponibles:');
+        console.log('   GET  /api/health');
+        console.log('   GET  /api/patients');
+        console.log('   GET  /api/consultations');
+        console.log('   GET  /api/symptomes');
+        console.log('   POST /api/symptomes');
+        console.log('\n👉 Testez: http://localhost:3000/api/symptomes');
     });
-});
+}
 
-console.log('✅ Configuration Express terminée');
 module.exports = app;

@@ -1535,7 +1535,7 @@
             updateDate();
             loadInitialData();
             setupEventListeners();
-            loadWilayas();
+            loadAllWilayas();
             loadPatientsForSelect();
             
             // Afficher la section dashboard par défaut
@@ -1848,7 +1848,7 @@ document.addEventListener('DOMContentLoaded', function() {
 // === SUPPRIMEZ CES FONCTIONS DUPLIQUÉES (si elles existent) ===
 /*
 // SUPPRIMEZ ces fonctions :
-function loadWilayas() { ... }           // Duplique loadAllWilayas
+function loadallWilayas() { ... }           // Duplique loadAllWilayas
 function chargerCommunes() { ... }       // Duplique loadCommunes
 function chargerWilayas() { ... }        // Duplique loadAllWilayas
 function initWilayaCommuneDependencies() { ... } // Duplique initAllDependencies
@@ -1865,7 +1865,7 @@ function initialiserSelections() { ... } // Duplique initAllDependencies
 // Appeler l'initialisation au chargement de la page
 document.addEventListener('DOMContentLoaded', function() {
     // Charger les wilayas d'abord
-    chargerWilayas();
+    loadAllWilayas();
     
     
 });
@@ -1884,6 +1884,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     option.textContent = `${patient.prenom || ''} ${patient.nom || ''}`.trim() || `Patient #${patient.id}`;
                     select.appendChild(option);
                 });
+
+
                 
             } catch (error) {
                 console.error('Erreur chargement patients:', error);
@@ -2421,14 +2423,14 @@ document.addEventListener('DOMContentLoaded', function() {
                     prenom: document.getElementById('patient-prenom').value,
                     date_naissance: document.getElementById('patient-date-naissance').value || null,
                     age: document.getElementById('patient-age').value || null,
-                    lieu_naissance: document.getElementById('patient-lieu-naissance').value || null,
-                    wilaya: document.getElementById('patient-wilaya').value || null,
+                   lieu_naissance: document.getElementById('commune_naissance').value || null,
+                    wilaya: document.getElementById('wilaya_naissance').value || null,
                     sexe: document.getElementById('patient-sexe').value || null,
                     situation_familiale: document.getElementById('patient-situation-familiale').value || null,
                     adresse: document.getElementById('patient-adresse').value || null,
                     telephone: document.getElementById('patient-telephone').value || null,
                     email: document.getElementById('patient-email').value || null,
-                    profession: document.getElementById('patient-profession').value || null,
+                    profession: document.getElementById('profession_id').value || null,
                     antecedents_medicaux: document.getElementById('patient-antécédents-médicaux').value || null,
                     antecedents_psychiatriques: document.getElementById('patient-antécédents-psychiatriques').value || null,
                     antecedents_familiaux: document.getElementById('patient-antécédents-familiaux-détails').value || null,
@@ -2586,7 +2588,7 @@ async function loadUtilityTab(tabName) {
             await loadDiagnosticsTable();
             break;
         case 'wilayas':
-            await loadWilayasTable();
+            await loadAllWilayasTable();
             break;
         case 'communes':
             await loadCommunesTable();
@@ -2820,7 +2822,7 @@ async function loadDiagnosticsTable() {
 }
 
 // =================== WILAYAS ===================
-async function loadWilayasTable() {
+async function loadAllWilayasTable() {
     try {
         const container = document.getElementById('utilities-content');
         container.innerHTML = `
@@ -2915,7 +2917,7 @@ async function importWilayasFromJSON() {
         
         if (response.ok) {
             showNotification('Wilayas importées avec succès', 'success');
-            loadWilayasTable();
+            loadAllWilayasTable();
             loadAllWilayas(); // Recharger dans les selects
         } else {
             throw new Error('Erreur importation');
@@ -2973,7 +2975,7 @@ async function loadCommunesTable() {
         `;
         
         // Charger les wilayas pour le filtre
-        await loadWilayasForFilter();
+        await loadallWilayasForFilter();
         
         // Charger toutes les communes
         const response = await fetch('/api/references/all-communes');
@@ -2988,7 +2990,7 @@ async function loadCommunesTable() {
 }
 
 // Charger les wilayas pour le filtre
-async function loadWilayasForFilter() {
+async function loadallWilayasForFilter() {
     try {
         const response = await fetch('/api/references/wilayas');
         const wilayas = await response.json();
@@ -3159,7 +3161,10 @@ const utilityStyles = `
 
 // Ajouter les styles au document
 document.head.insertAdjacentHTML('beforeend', `<style>${utilityStyles}</style>`);
-        
+// Dans backend/server/public/js/app.js - AJOUTER CES FONCTIONS :
+
+
+
     </script>
    
 </body>
