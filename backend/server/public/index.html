@@ -2811,16 +2811,449 @@ async function loadDiagnosticsTable() {
         // NOTE: Vous devez créer cette API dans votre backend
         const response = await fetch('/api/references/diagnostics');
         const diagnostics = await response.json();
+         // Générer le tableau
+        let html = `
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nom</th>
+                            <th>Catégorie</th>
+                            <th>Description</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+        `;
         
-        // ... code similaire à professions ...
-        // Pour gagner du temps, je vais créer un template générique
+        if (diagnostics.length === 0) {
+            html += `
+                <tr>
+                    <td colspan="5" style="text-align: center; padding: 2rem;">
+                        <i class="fas fa-inbox" style="font-size: 2rem; color: var(--gray); margin-bottom: 0.5rem;"></i>
+                        <p>Aucun diagnostic enregistrée</p>
+                    </td>
+                </tr>
+            `;
+        } else {
+            diagnostics.forEach(diag => {
+                html += `
+                    <tr>
+                        <td>${diag.id}</td>
+                        <td><strong>${diag.nom}</strong></td>
+                        <td><span class="badge badge-info">${diag.categorie || 'Non catégorisé'}</span></td>
+                        <td>${diag.description ? diag.description.substring(0, 50) + '...' : '-'}</td>
+                        <td>
+                            <div style="display: flex; gap: 0.5rem;">
+                                <button class="btn" style="padding: 0.25rem 0.75rem; background: var(--info); color: white;"
+                                        onclick="editdiagnostic(${diag.id})">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn" style="padding: 0.25rem 0.75rem; background: var(--danger); color: white;"
+                                        onclick="deleteDiagnostic(${diag.id})">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+        
+        html += '</tbody></table></div>';
+        document.getElementById('diagnostics-table-container').innerHTML = html;
         
     } catch (error) {
         console.error('Erreur chargement diagnostics:', error);
-        showNotification('L\'API diagnostics n\'est pas encore implémentée', 'warning');
+        document.getElementById('diagnostics-table-container').innerHTML = `
+            <div class="alert alert-danger">
+                <i class="fas fa-exclamation-triangle"></i>
+                Erreur de chargement des diagnostics
+            </div>
+        `;
+    }
+
+}
+        
+        //* Ouvre le modal pour ajouter/modifier un diagnostic
+ 
+function openDiagnosticModal(action = 'add', diagnostic = null) {
+    console.log(`Ouverture modal diagnostic - Action: ${action}`, diagnostic);
+    
+    const modal = document.getElementById('diagnostic-modal');
+    if (!modal) {
+        console.error('Modal #diagnostic-modal non trouvé');
+        return;
+    }
+    
+    const title = modal.querySelector('.modal-title');
+    const form = document.getElementById('diagnostic-form');
+    
+    if (!title || !form) {
+        console.error('Éléments du modal non trouvés');
+        return;
+    }
+    
+    // Réinitialiser le formulaire
+    form.reset();
+    
+    // Masquer le champ ID
+    const idField = document.getElementById('diagnostic-id');
+    if (idField) {
+        idField.value = '';
+    }
+    
+    // Remplir le formulaire si édition
+    if (action === 'edit' && diagnostic) {
+        title.textContent = 'Modifier le Diagnostic';
+        
+        if (idField) idField.value = diagnostic.id || '';
+        
+        const codeField = document.getElementById('diagnostic-code');
+        const nomField = document.getElementById('diagnostic-nom');
+        
+        if (codeField) codeField.value = diagnostic.code || '';
+        if (nomField) nomField.value = diagnostic.nom || '';
+    } else {
+        title.textContent = 'Ajouter un Diagnostic';
+    }
+    
+    // Afficher le modal
+    modal.style.display = 'block';
+    modal.classList.add('show');
+
+ }
+       
+
+
+/**
+ * Supprime un diagnostic
+ */
+async function deleteDiagnostic(id) {
+    if (!confirm('Êtes-vous sûr de vouloir supprimer ce diagnostic ?')) {
+        return;
+    }
+    
+    try {
+        const response = await fetch(`/api/references/diagnostics/${id}`, {
+            method: 'DELETE'
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            alert('✅ Diagnostic supprimé avec succès');
+            await loadDiagnosticsTable();
+        } else {
+            alert(`❌ Erreur: ${result.error}`);
+        }
+    } catch (error) {
+        console.error('Erreur suppression diagnostic:', error);
+        alert(`❌ Erreur: ${error.message}`);
+    }
+}
+/**
+ * Ouvre le modal pour les diagnostics
+ */
+function openDiagnosticModal(action = 'add', diagnostic = null) {
+    console.log(`Ouverture modal diagnostic - Action: ${action}`, diagnostic);
+    
+    // Créer le modal s'il n'existe pas
+    let modal = document.getElementById('diagnostic-modal');
+    
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'diagnostic-modal';
+        modal.className = 'modal';
+        modal.innerHTML = `
+            <div class="modal-content" style="max-width: 500px;">
+                <div class="modal-header">
+                    <h5 id="diagnostic-modal-title">${diagnostic ? 'Modifier' : 'Ajouter'} un diagnostic</h5>
+                    <span class="close" onclick="closeModal('diagnostic-modal')">&times;</span>
+                </div>
+                <div class="modal-body">
+                    <form id="diagnostic-form">
+                        <input type="hidden" id="diagnostic-id" value="${diagnostic ? diagnostic.id : ''}">
+                        
+                        <div class="form-group">
+                            <label for="diagnostic-code">Code CIM *</label>
+                            <input type="text" id="diagnostic-code" class="form-control" 
+                                   placeholder="Ex: F41.1" required
+                                   value="${diagnostic ? diagnostic.code : ''}">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="diagnostic-nom">Nom du diagnostic *</label>
+                            <textarea id="diagnostic-nom" class="form-control" rows="3" required>${diagnostic ? diagnostic.nom : ''}</textarea>
+                        </div>
+                        
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" onclick="closeModal('diagnostic-modal')">
+                                Annuler
+                            </button>
+                            <button type="submit" class="btn btn-primary">
+                                ${diagnostic ? 'Modifier' : 'Ajouter'}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(modal);
+        
+        // Gérer la soumission
+        document.getElementById('diagnostic-form').addEventListener('submit', handleDiagnosticSubmit);
+    } else {
+        // Mettre à jour le titre et les valeurs
+        const title = modal.querySelector('#diagnostic-modal-title');
+        if (title) {
+            title.textContent = diagnostic ? 'Modifier un diagnostic' : 'Ajouter un diagnostic';
+        }
+        
+        if (diagnostic) {
+            document.getElementById('diagnostic-id').value = diagnostic.id || '';
+            document.getElementById('diagnostic-code').value = diagnostic.code || '';
+            document.getElementById('diagnostic-nom').value = diagnostic.nom || '';
+        } else {
+            document.getElementById('diagnostic-form').reset();
+        }
+    }
+    
+    // Afficher le modal
+    modal.style.display = 'block';
+    modal.classList.add('show');
+}
+
+/**
+ * Gère la soumission du formulaire diagnostic
+ */
+async function handleDiagnosticSubmit(event) {
+    event.preventDefault();
+    
+    const diagnosticData = {
+        code: document.getElementById('diagnostic-code').value,
+        nom: document.getElementById('diagnostic-nom').value
+    };
+    
+    const diagnosticId = document.getElementById('diagnostic-id').value;
+    const url = diagnosticId ? `/api/references/diagnostics/${diagnosticId}` : '/api/references/diagnostics';
+    const method = diagnosticId ? 'PUT' : 'POST';
+    
+    try {
+        const response = await fetch(url, {
+            method: method,
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(diagnosticData)
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            showNotification(
+                diagnosticId ? 'Diagnostic modifié avec succès' : 'Diagnostic ajouté avec succès', 
+                'success'
+            );
+            closeModal('diagnostic-modal');
+            await loadDiagnosticsTable(); // Recharger le tableau
+        } else {
+            showNotification(result.error || 'Erreur', 'danger');
+        }
+    } catch (error) {
+        console.error('Erreur sauvegarde diagnostic:', error);
+        showNotification('Erreur de sauvegarde', 'danger');
+    }
+}
+// Éditer un diagnostic
+async function editdiagnostic(id) {
+    openDiagnosticModal(id);
+}
+
+// ============================================
+// FONCTIONS POUR LA GESTION DES TRAITEMENTS
+// ============================================
+
+/**
+ * Charge le tableau des traitements
+ */
+async function loadTraitementsTable() {
+    
+    try {
+        const container = document.getElementById('utilities-content');
+        container.innerHTML = `
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                <h4><i class="fas fa-stethoscope"></i> Gestion des traitements</h4>
+                <button class="btn btn-success" onclick="openTraitementModal()">
+                    <i class="fas fa-plus"></i> Ajouter un traitement
+                </button>
+            </div>
+            <div id="traitements-table-container">
+                <div style="text-align: center; padding: 2rem;">
+                    <div class="spinner-border" style="width: 3rem; height: 3rem; color: var(--primary);"></div>
+                    <p style="margin-top: 1rem;">Chargement des traitements...</p>
+                </div>
+            </div>
+        `;
+        
+        // NOTE: Vous devez créer cette API dans votre backend
+        const response = await fetch('/api/references/traitements');
+        const traitements = await response.json();
+         // Générer le tableau
+        let html = `
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nom</th>
+                            
+                            <th>Categorie</th>
+                            <th>Type</th>
+                            <th>Forme</th>
+                            
+                        </tr>
+                    </thead>
+                    <tbody>
+        `;
+        
+        if (traitements.length === 0) {
+            html += `
+                <tr>
+                    <td colspan="5" style="text-align: center; padding: 2rem;">
+                        <i class="fas fa-inbox" style="font-size: 2rem; color: var(--gray); margin-bottom: 0.5rem;"></i>
+                        <p>Aucun traitement enregistrée</p>
+                    </td>
+                </tr>
+            `;
+        } else {
+            traitements.forEach(trait => {
+                html += `
+                    <tr>
+                        <td>${trait.id}</td>
+                        <td><strong>${trait.nom}</strong></td>
+                        //<td><span class="badge badge-info">${trait.categorie || 'Non catégorisé'}</span></td>
+                       // <td>${trait.description ? trait.description.substring(0, 50) + '...' : '-'}</td>
+                        <td>
+                            <div style="display: flex; gap: 0.5rem;">
+                                <button class="btn" style="padding: 0.25rem 0.75rem; background: var(--info); color: white;"
+                                        onclick="editTraitement(${trait.id})">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn" style="padding: 0.25rem 0.75rem; background: var(--danger); color: white;"
+                                        onclick="deleteTraitement(${trait.id})">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+        
+        html += '</tbody></table></div>';
+        document.getElementById('traitements-table-container').innerHTML = html;
+        
+    } catch (error) {
+        console.error('Erreur chargement traitements:', error);
+        document.getElementById('traitements-table-container').innerHTML = `
+            <div class="alert alert-danger">
+                <i class="fas fa-exclamation-triangle"></i>
+                Erreur de chargement des traitements
+            </div>
+        `;
+    }
+
+}
+        
+
+/**
+ * Ouvre le modal pour ajouter/modifier un traitement
+ */
+function openTraitementModal(action = 'add', traitement = null) {
+    console.log(`Ouverture modal traitement - Action: ${action}`, traitement);
+    
+    const modal = document.getElementById('traitement-modal');
+    if (!modal) {
+        console.error('Modal #traitement-modal non trouvé');
+        return;
+    }
+    
+    const title = modal.querySelector('.modal-title');
+    const form = document.getElementById('traitement-form');
+    
+    if (!title || !form) {
+        console.error('Éléments du modal non trouvés');
+        return;
+    }
+    
+    // Réinitialiser le formulaire
+    form.reset();
+    
+    // Masquer le champ ID
+    const idField = document.getElementById('traitement-id');
+    if (idField) {
+        idField.value = '';
+    }
+    
+    // Remplir le formulaire si édition
+    if (action === 'edit' && traitement) {
+        title.textContent = 'Modifier le Traitement';
+        
+        if (idField) idField.value = traitement.id || '';
+        
+        const nomField = document.getElementById('traitement-nom');
+        const typeField = document.getElementById('traitement-type');
+        const categorieField = document.getElementById('traitement-categorie');
+        const formeField = document.getElementById('traitement-forme');
+        
+        if (nomField) nomField.value = traitement.nom || '';
+        if (typeField) formeField.value = traitement.type || '';
+        if (categorieField) formeField.value = traitement.categorie || '';
+        if (formeField) formeField.value = traitement.forme || '';
+        
+    } else {
+        title.textContent = 'Ajouter un Traitement';
+    }
+    
+    // Afficher le modal
+    modal.style.display = 'block';
+    modal.classList.add('show');
+}
+
+/**
+ * Supprime un traitement
+ */
+async function deleteTraitement(id) {
+    if (!confirm('Êtes-vous sûr de vouloir supprimer ce traitement ?')) {
+        return;
+    }
+    
+    try {
+        const response = await fetch(`/api/references/traitements/${id}`, {
+            method: 'DELETE'
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            alert('✅ Traitement supprimé avec succès');
+            await loadTraitementsTable();
+        } else {
+            alert(`❌ Erreur: ${result.error}`);
+        }
+    } catch (error) {
+        console.error('Erreur suppression traitement:', error);
+        alert(`❌ Erreur: ${error.message}`);
     }
 }
 
+
+// Éditer un traitement
+async function editTraitement(id) {
+    openTraitementModal(id);
+}
 // =================== WILAYAS ===================
 async function loadAllWilayasTable() {
     try {
@@ -2879,11 +3312,13 @@ async function loadAllWilayasTable() {
                     <td>
                         <div style="display: flex; gap: 0.5rem;">
                             <button class="btn" style="padding: 0.25rem 0.75rem; background: var(--warning); color: white;"
-                                    onclick="viewCommunesOfWilaya(${wilaya.code || wilaya.id})">
+                                   // onclick="viewCommunesOfWilaya(${wilaya.code || wilaya.id})">
+                                   <button onclick="typeof viewCommunesOfWilaya === 'function' ? viewCommunesOfWilaya(${wilaya.id}, '${wilaya.nom}') : console.error('Fonction non définie')">
                                 <i class="fas fa-eye"></i> Communes
                             </button>
                             <button class="btn" style="padding: 0.25rem 0.75rem; background: var(--danger); color: white;"
-                                    onclick="deleteWilaya(${wilaya.code || wilaya.id})">
+                                   // onclick="deleteWilaya(${wilaya.code || wilaya.id})">
+                                   <button onclick="typeof deleteWilaya === 'function' ? deleteWilaya(${wilaya.id}) : console.error('Fonction non définie')">
                                 <i class="fas fa-trash"></i>
                             </button>
                         </div>
@@ -2927,7 +3362,43 @@ async function importWilayasFromJSON() {
         showNotification('Erreur lors de l\'importation', 'danger');
     }
 }
-
+/**
+ * Supprime une wilaya
+ */
+async function deleteWilaya(wilayaId) {
+    if (!confirm('ATTENTION: Supprimer une wilaya supprimera aussi toutes ses communes. Êtes-vous vraiment sûr ?')) {
+        return;
+    }
+    
+    try {
+        // D'abord, vérifier s'il y a des communes liées
+        const response = await fetch(`/api/references/communes/${wilayaId}`);
+        const communesResult = await response.json();
+        
+        if (communesResult.data && communesResult.data.length > 0) {
+            if (!confirm(`Cette wilaya a ${communesResult.data.length} communes. Voulez-vous quand même supprimer ?`)) {
+                return;
+            }
+        }
+        
+        // Supprimer la wilaya
+        const deleteResponse = await fetch(`/api/references/wilayas/${wilayaId}`, {
+            method: 'DELETE'
+        });
+        
+        const result = await deleteResponse.json();
+        
+        if (result.success) {
+            showNotification('✅ Wilaya supprimée avec succès', 'success');
+            await loadAllWilayasTable(); // Recharger le tableau
+        } else {
+            showNotification(`❌ ${result.error}`, 'danger');
+        }
+    } catch (error) {
+        console.error('Erreur suppression wilaya:', error);
+        showNotification('❌ Erreur de suppression', 'danger');
+    }
+}
 // =================== COMMUNES ===================
 async function loadCommunesTable() {
     try {
@@ -3063,7 +3534,464 @@ function displayCommunesTable(communes) {
     html += '</tbody></table></div>';
     document.getElementById('communes-table-container').innerHTML = html;
 }
+// =================== FONCTIONS DE FILTRE ET RECHERCHE ===================
 
+/**
+ * Filtre les communes par wilaya
+ */
+function filterCommunesByWilaya(wilayaCode) {
+    console.log(`Filtrage par wilaya: ${wilayaCode}`);
+    
+    const table = document.querySelector('#communes-table-container table tbody');
+    if (!table) return;
+    
+    const rows = table.querySelectorAll('tr');
+    let visibleCount = 0;
+    
+    rows.forEach(row => {
+        if (row.querySelector('td[colspan]')) return; // Ignorer la ligne "aucune commune"
+        
+        const wilayaCell = row.querySelector('td:nth-child(3)'); // 3ème colonne = Wilaya
+        if (!wilayaCell) return;
+        
+        const wilayaText = wilayaCell.textContent;
+        const wilayaCodeFromText = wilayaText.split(' - ')[0]; // Extraire le code de la wilaya
+        
+        // Afficher si : pas de filtre OU le code correspond
+        const shouldShow = !wilayaCode || wilayaCode === '' || wilayaCodeFromText === wilayaCode.toString();
+        
+        row.style.display = shouldShow ? '' : 'none';
+        if (shouldShow) visibleCount++;
+    });
+    
+    // Mettre à jour un compteur si vous en avez un
+    updateCommuneCounter(visibleCount);
+}
+
+/**
+ * Recherche dans les communes
+ */
+function searchCommunes(searchTerm) {
+    console.log(`Recherche: ${searchTerm}`);
+    
+    const table = document.querySelector('#communes-table-container table tbody');
+    if (!table) return;
+    
+    const rows = table.querySelectorAll('tr');
+    let visibleCount = 0;
+    
+    searchTerm = searchTerm.toLowerCase().trim();
+    
+    rows.forEach(row => {
+        if (row.querySelector('td[colspan]')) return; // Ignorer la ligne "aucune commune"
+        
+        let rowText = '';
+        const cells = row.querySelectorAll('td');
+        
+        cells.forEach(cell => {
+            rowText += cell.textContent.toLowerCase() + ' ';
+        });
+        
+        const shouldShow = searchTerm === '' || rowText.includes(searchTerm);
+        
+        row.style.display = shouldShow ? '' : 'none';
+        if (shouldShow) visibleCount++;
+    });
+    
+    updateCommuneCounter(visibleCount);
+}
+/**
+ * Affiche les communes d'une wilaya spécifique
+ */
+function viewCommunesOfWilaya(wilayaId, wilayaNom) {
+    console.log(`Voir communes de la wilaya: ${wilayaId} - ${wilayaNom}`);
+    
+    // Ouvrir un modal ou rediriger vers l'onglet communes avec filtre
+    const modal = document.getElementById('communes-wilaya-modal') || 
+                  createCommunesWilayaModal();
+    
+    // Titre du modal
+    const title = modal.querySelector('.modal-title');
+    if (title) {
+        title.textContent = `Communes de la wilaya: ${wilayaNom}`;
+    }
+    
+    // Stocker l'ID de la wilaya pour le filtre
+    modal.dataset.wilayaId = wilayaId;
+    
+    // Charger les communes de cette wilaya
+    loadCommunesForWilaya(wilayaId, modal);
+    
+    // Afficher le modal
+    modal.style.display = 'block';
+    modal.classList.add('show');
+}
+
+/**
+ * Crée le modal pour afficher les communes d'une wilaya
+ */
+function createCommunesWilayaModal() {
+    const modal = document.createElement('div');
+    modal.id = 'communes-wilaya-modal';
+    modal.className = 'modal';
+    
+    modal.innerHTML = `
+        <div class="modal-content" style="max-width: 800px;">
+            <div class="modal-header">
+                <h5 class="modal-title">Communes de la wilaya</h5>
+                <span class="close" onclick="closeModal('communes-wilaya-modal')">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div id="communes-wilaya-container">
+                    <div class="text-center p-4">
+                        <div class="spinner-border"></div>
+                        <p class="mt-2">Chargement des communes...</p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('communes-wilaya-modal')">
+                    Fermer
+                </button>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+    return modal;
+}
+
+/**
+ * Charge les communes pour une wilaya spécifique
+ */
+async function loadCommunesForWilaya(wilayaId, modal) {
+    try {
+        const response = await fetch(`/api/references/communes/${wilayaId}`);
+        const result = await response.json();
+        
+        const container = modal.querySelector('#communes-wilaya-container');
+        if (!container) return;
+        
+        if (result.success && result.data && result.data.length > 0) {
+            let html = `
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Code</th>
+                                <th>Nom</th>
+                                <th>Code Postal</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            `;
+            
+            result.data.forEach(commune => {
+                html += `
+                    <tr>
+                        <td>${commune.code || '-'}</td>
+                        <td><strong>${commune.nom}</strong></td>
+                        <td>${commune.code_postal || '-'}</td>
+                        <td>
+                            <button class="btn btn-sm btn-warning me-1" 
+                                    onclick="openCommuneModal('edit', ${JSON.stringify(commune).replace(/"/g, '&quot;')})">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-sm btn-danger" 
+                                    onclick="deleteCommune(${commune.id})">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+            
+            html += '</tbody></table></div>';
+            container.innerHTML = html;
+        } else {
+            container.innerHTML = `
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle"></i>
+                    Aucune commune trouvée pour cette wilaya.
+                </div>
+            `;
+        }
+    } catch (error) {
+        console.error('Erreur chargement communes:', error);
+        const container = modal.querySelector('#communes-wilaya-container');
+        if (container) {
+            container.innerHTML = `
+                <div class="alert alert-danger">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    Erreur de chargement: ${error.message}
+                </div>
+            `;
+        }
+    }
+}
+/**
+ * Met à jour le compteur de communes
+ */
+function updateCommuneCounter(count) {
+    // Optionnel : ajouter un compteur si vous voulez
+    const counter = document.getElementById('commune-counter');
+    if (counter) {
+        counter.textContent = `${count} commune(s)`;
+    }
+}
+
+// =================== FONCTIONS CRUD COMMUNES ===================
+
+/**
+ * Ouvre le modal pour ajouter/modifier une commune
+ */
+function openCommuneModal(communeId = null) {
+    console.log(`Ouverture modal commune - ID: ${communeId}`);
+    
+    // Créer le modal s'il n'existe pas
+    let modal = document.getElementById('commune-modal');
+    
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'commune-modal';
+        modal.className = 'modal';
+        modal.innerHTML = `
+            <div class="modal-content" style="max-width: 500px;">
+                <div class="modal-header">
+                    <h5 id="commune-modal-title">${communeId ? 'Modifier' : 'Ajouter'} une commune</h5>
+                    <span class="close" onclick="closeModal('commune-modal')">&times;</span>
+                </div>
+                <div class="modal-body">
+                    <form id="commune-form">
+                        <input type="hidden" id="commune-id" value="${communeId || ''}">
+                        
+                        <div class="form-group">
+                            <label for="commune-code">Code *</label>
+                            <input type="text" id="commune-code" class="form-control" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="commune-nom">Nom *</label>
+                            <input type="text" id="commune-nom" class="form-control" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="commune-wilaya">Wilaya *</label>
+                            <select id="commune-wilaya" class="form-control" required>
+                                <option value="">Sélectionner une wilaya</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="commune-code-postal">Code Postal</label>
+                            <input type="text" id="commune-code-postal" class="form-control">
+                        </div>
+                        
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" onclick="closeModal('commune-modal')">
+                                Annuler
+                            </button>
+                            <button type="submit" class="btn btn-primary">
+                                ${communeId ? 'Modifier' : 'Ajouter'}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(modal);
+        
+        // Gérer la soumission du formulaire
+        document.getElementById('commune-form').addEventListener('submit', handleCommuneSubmit);
+        
+        // Charger les wilayas dans le select
+        loadWilayasForModal();
+    }
+    
+    // Si édition, charger les données de la commune
+    if (communeId) {
+        loadCommuneData(communeId);
+    } else {
+        // Réinitialiser le formulaire pour l'ajout
+        document.getElementById('commune-form').reset();
+        document.getElementById('commune-modal-title').textContent = 'Ajouter une commune';
+    }
+    
+    // Afficher le modal
+    modal.style.display = 'block';
+}
+
+/**
+ * Charge les wilayas dans le select du modal
+ */
+async function loadWilayasForModal() {
+    try {
+        const response = await fetch('/api/references/wilayas');
+        const wilayas = await response.json();
+        
+        const select = document.getElementById('commune-wilaya');
+        select.innerHTML = '<option value="">Sélectionner une wilaya</option>';
+        
+        wilayas.forEach(wilaya => {
+            const option = document.createElement('option');
+            option.value = wilaya.id || wilaya.code;
+            option.textContent = `${wilaya.code} - ${wilaya.nom}`;
+            select.appendChild(option);
+        });
+    } catch (error) {
+        console.error('Erreur chargement wilayas:', error);
+    }
+}
+
+/**
+ * Charge les données d'une commune pour édition
+ */
+async function loadCommuneData(communeId) {
+    try {
+        // Note: Vous devrez peut-être créer une route GET /api/references/commune/:id
+        // Pour l'instant, chargez toutes les communes et trouvez la bonne
+        const response = await fetch('/api/references/all-communes');
+        const communes = await response.json();
+        
+        const commune = communes.find(c => c.id == communeId || c.code == communeId);
+        
+        if (commune) {
+            document.getElementById('commune-id').value = commune.id || '';
+            document.getElementById('commune-code').value = commune.code || '';
+            document.getElementById('commune-nom').value = commune.nom || '';
+            document.getElementById('commune-code-postal').value = commune.code_postal || '';
+            
+            // Définir la wilaya si le select est chargé
+            const wilayaSelect = document.getElementById('commune-wilaya');
+            if (wilayaSelect && commune.wilaya_id) {
+                setTimeout(() => {
+                    wilayaSelect.value = commune.wilaya_id;
+                }, 100);
+            }
+            
+            document.getElementById('commune-modal-title').textContent = 'Modifier la commune';
+        }
+    } catch (error) {
+        console.error('Erreur chargement commune:', error);
+        showNotification('Erreur de chargement', 'danger');
+    }
+}
+
+/**
+ * Gère la soumission du formulaire commune
+ */
+async function handleCommuneSubmit(event) {
+    event.preventDefault();
+    
+    const communeData = {
+        code: document.getElementById('commune-code').value,
+        nom: document.getElementById('commune-nom').value,
+        wilaya_id: document.getElementById('commune-wilaya').value,
+        code_postal: document.getElementById('commune-code-postal').value
+    };
+    
+    const communeId = document.getElementById('commune-id').value;
+    const url = communeId ? `/api/references/communes/${communeId}` : '/api/references/communes';
+    const method = communeId ? 'PUT' : 'POST';
+    
+    try {
+        const response = await fetch(url, {
+            method: method,
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(communeData)
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            showNotification(communeId ? 'Commune modifiée avec succès' : 'Commune ajoutée avec succès', 'success');
+            closeModal('commune-modal');
+            await loadCommunesTable(); // Recharger le tableau
+        } else {
+            showNotification(result.error || 'Erreur', 'danger');
+        }
+    } catch (error) {
+        console.error('Erreur sauvegarde commune:', error);
+        showNotification('Erreur de sauvegarde', 'danger');
+    }
+}
+
+/**
+ * Importe les communes depuis le fichier JSON
+ */
+async function importCommunesFromJSON() {
+    if (!confirm('Êtes-vous sûr de vouloir importer les communes depuis le fichier JSON ? Cette action peut écraser les données existantes.')) {
+        return;
+    }
+    
+    try {
+        showNotification('Import en cours...', 'info');
+        
+        const response = await fetch('/api/references/import-communes', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            showNotification(`✅ ${result.message}`, 'success');
+            await loadCommunesTable(); // Recharger le tableau
+        } else {
+            showNotification(`❌ ${result.error}`, 'danger');
+        }
+    } catch (error) {
+        console.error('Erreur import communes:', error);
+        showNotification(`❌ Erreur: ${error.message}`, 'danger');
+    }
+}
+
+/**
+ * Édite une commune
+ */
+function editCommune(communeId) {
+    openCommuneModal(communeId);
+}
+
+/**
+ * Supprime une commune
+ */
+async function deleteCommune(communeId) {
+    if (!confirm('Êtes-vous sûr de vouloir supprimer cette commune ?')) {
+        return;
+    }
+    
+    try {
+        const response = await fetch(`/api/references/communes/${communeId}`, {
+            method: 'DELETE'
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            showNotification('✅ Commune supprimée avec succès', 'success');
+            await loadCommunesTable();
+        } else {
+            showNotification(`❌ ${result.error}`, 'danger');
+        }
+    } catch (error) {
+        console.error('Erreur suppression commune:', error);
+        showNotification('❌ Erreur de suppression', 'danger');
+    }
+}
+
+// Fonction utilitaire pour fermer les modals
+function closeModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        modal.style.display = 'none';
+    }
+}
 // =================== FONCTIONS GÉNÉRIQUES ===================
 
 // Fermer un modal spécifique
@@ -3163,7 +4091,14 @@ const utilityStyles = `
 document.head.insertAdjacentHTML('beforeend', `<style>${utilityStyles}</style>`);
 // Dans backend/server/public/js/app.js - AJOUTER CES FONCTIONS :
 
-
+// Exporter les fonctions globalement
+window.viewCommunesOfWilaya = viewCommunesOfWilaya;
+window.openDiagnosticModal = openDiagnosticModal;
+window.deleteWilaya = deleteWilaya;
+window.loadTraitementsTable = loadTraitementsTable;
+window.openTraitementModal = openTraitementModal;
+window.deleteTraitement = deleteTraitement;
+window.closeModal = closeModal;
 
     </script>
    
