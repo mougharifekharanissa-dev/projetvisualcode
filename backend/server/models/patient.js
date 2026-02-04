@@ -292,7 +292,7 @@ class Patient {
             'Nawel', 'Djamila', 'Rym', 'Sabrina', 'Ines'
         ];
         
-        const profession= [
+        const professions = [
             'Enseignant', 'Médecin', 'Ingénieur', 'Commerçant', 'Fonctionnaire',
             'Infirmier', 'Avocat', 'Architecte', 'Artisan', 'Agriculteur',
             'Étudiant', 'Retraité', 'Sans emploi', 'Cadre', 'Technicien'
