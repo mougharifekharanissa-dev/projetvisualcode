@@ -4,6 +4,9 @@ import { useNavigate } from 'react-router-dom';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 
+// Configuration API
+import API_ENDPOINTS from '../config/api';
+
 // Nouveaux composants médicaux
 import SymptomesSelector from '../components/medical/SymptomesSelector';
 import DiagnosticsSelector from '../components/medical/DiagnosticsSelector';
@@ -101,8 +104,7 @@ const ConsultationPage: React.FC = () => {
     const fetchPatients = async () => {
       try {
         setApiError(null);
-        // MODIFIEZ ICI : Décommentez et adaptez l'URL
-        const response = await fetch('http://localhost:3000/api/patients');
+        const response = await fetch(API_ENDPOINTS.patients);
         
         if (!response.ok) {
           throw new Error(`Erreur API: ${response.status} ${response.statusText}`);
@@ -140,9 +142,8 @@ const ConsultationPage: React.FC = () => {
     setIsSubmitting(true);
     try {
       console.log('Données à sauvegarder:', data);
-      
-      // MODIFIEZ ICI : Activez l'appel API réel
-      const response = await fetch('http://localhost:3000/api/consultations', {
+
+      const response = await fetch(API_ENDPOINTS.consultations, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
