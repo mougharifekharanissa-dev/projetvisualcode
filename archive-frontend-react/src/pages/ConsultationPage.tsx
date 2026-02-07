@@ -10,6 +10,7 @@ import API_ENDPOINTS from '../config/api';
 // Nouveaux composants médicaux
 import SymptomesSelector from '../components/medical/SymptomesSelector';
 import DiagnosticsSelector from '../components/medical/DiagnosticsSelector';
+import DiagnosticSelector from '../components/medical/DiagnosticSelector';
 import EvaluationSection from '../components/medical/EvaluationSection';
 import MedicamentsSelector from '../components/medical/MedicamentsSelector';
 import MaladiesSelector from '../components/medical/MaladiesSelector';
@@ -38,6 +39,7 @@ const consultationSchema = z.object({
   // NOUVEAUX CHAMPS MÉDICAUX
   symptomes: z.array(z.string()).default([]),
   diagnostics: z.array(z.string()).default([]),
+  diagnosticPrincipal: z.string().min(1, "Un diagnostic DSM-5 est requis").nullable(),
   dsm5: z.array(z.string()).default([]),
   medicaments: z.array(z.string()).default([]),
   maladiesAssociees: z.array(z.string()).default([]),
@@ -80,6 +82,7 @@ const ConsultationPage: React.FC = () => {
     defaultValues: {
       symptomes: [],
       diagnostics: [],
+      diagnosticPrincipal: null,
       dsm5: [],
       medicaments: [],
       maladiesAssociees: [],
@@ -93,6 +96,7 @@ const ConsultationPage: React.FC = () => {
   // Surveiller les valeurs pour les champs conditionnels
   const paiementEffectue = watch('paiementEffectue');
   const symptomes = watch('symptomes') || [];
+  const diagnosticPrincipal = watch('diagnosticPrincipal');
   const diagnostics = watch('diagnostics') || [];
   const dsm5 = watch('dsm5') || [];
   const medicaments = watch('medicaments') || [];
@@ -334,7 +338,22 @@ const ConsultationPage: React.FC = () => {
               />
             </div>
 
-            {/* Diagnostics et DSM-5 */}
+            {/* Diagnostic DSM-5 Principal */}
+            <div className="mb-6">
+              <Controller
+                name="diagnosticPrincipal"
+                control={control}
+                render={({ field, fieldState }) => (
+                  <DiagnosticSelector
+                    selectedDiagnostic={(field.value as string | null) || null}
+                    onChange={field.onChange}
+                    error={fieldState.error?.message}
+                  />
+                )}
+              />
+            </div>
+
+            {/* Diagnostics supplémentaires et DSM-5 */}
             <div>
               <Controller
                 name="diagnostics"
@@ -502,6 +521,10 @@ const ConsultationPage: React.FC = () => {
             <div>
               <span className="font-medium">Symptômes sélectionnés:</span>{' '}
               {symptomes.length} - {symptomes.join(', ')}
+            </div>
+            <div>
+              <span className="font-medium">Diagnostic DSM-5 principal:</span>{' '}
+              {diagnosticPrincipal || 'Non sélectionné'}
             </div>
             <div>
               <span className="font-medium">Diagnostics:</span>{' '}
