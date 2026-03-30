@@ -1,5 +1,7 @@
 import { Routes, Route, Link } from 'react-router-dom';
 import ConsultationPage from './pages/ConsultationPage';
+import CertificatePage from './pages/CertificatePage';
+import PatientPage from './pages/PatientPage';
 
 function App() {
   return (
@@ -28,6 +30,8 @@ function App() {
           </div>
         } />
         <Route path="/consultation" element={<ConsultationPage />} />
+        <Route path="/patient/:patientId" element={<PatientPage />} />
+        <Route path="/certificates/:patientId?" element={<CertificatePage />} />
       </Routes>
     </div>
   );

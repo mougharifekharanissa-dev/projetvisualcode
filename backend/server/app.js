@@ -31,7 +31,8 @@ const routesConfig = [
     { file: './routes/patientRoutes', endpoint: '/api/patients' },
     { file: './routes/consultationRoutes', endpoint: '/api/consultations' },
     { file: './routes/referenceRoutes', endpoint: '/api/references' },
-    { file: './routes/symptomeRoutes', endpoint: '/api/symptomes' }
+    { file: './routes/symptomeRoutes', endpoint: '/api/symptomes' },
+    { file: './routes/certificateRoutes', endpoint: '/api/certificates' }
 ];
 
 routesConfig.forEach(config => {

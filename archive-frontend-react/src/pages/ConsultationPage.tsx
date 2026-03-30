@@ -4,22 +4,18 @@ import { useNavigate } from 'react-router-dom';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 
+// Configuration API
+import API_ENDPOINTS from '../config/api';
+
 // Nouveaux composants médicaux
 import SymptomesSelector from '../components/medical/SymptomesSelector';
 import DiagnosticsSelector from '../components/medical/DiagnosticsSelector';
+import DiagnosticSelector from '../components/medical/DiagnosticSelector';
 import EvaluationSection from '../components/medical/EvaluationSection';
 import MedicamentsSelector from '../components/medical/MedicamentsSelector';
 import MaladiesSelector from '../components/medical/MaladiesSelector';
 import PaiementToggle from '../components/medical/PaiementToggle';
 
-// Données mockées
-import {
-  symptomesList,
-  diagnosticsList,
-  dsm5List,
-  medicamentsList,
-  maladiesList
-} from '../data/medicalMockData';
 
 // Schéma de validation
 const consultationSchema = z.object({
@@ -35,6 +31,7 @@ const consultationSchema = z.object({
   // NOUVEAUX CHAMPS MÉDICAUX
   symptomes: z.array(z.string()).default([]),
   diagnostics: z.array(z.string()).default([]),
+  diagnosticPrincipal: z.string().min(1, "Un diagnostic DSM-5 est requis").nullable(),
   dsm5: z.array(z.string()).default([]),
   medicaments: z.array(z.string()).default([]),
   maladiesAssociees: z.array(z.string()).default([]),
@@ -70,13 +67,13 @@ const ConsultationPage: React.FC = () => {
     handleSubmit,
     control,
     watch,
-    setValue,
     formState: { errors },
   } = useForm<ConsultationFormData>({
     resolver: zodResolver(consultationSchema),
     defaultValues: {
       symptomes: [],
       diagnostics: [],
+      diagnosticPrincipal: null,
       dsm5: [],
       medicaments: [],
       maladiesAssociees: [],
@@ -87,9 +84,11 @@ const ConsultationPage: React.FC = () => {
     },
   });
 
-  // Surveiller les valeurs pour les champs conditionnels
+  const selectedPatientId = watch('patientId');
+
   const paiementEffectue = watch('paiementEffectue');
   const symptomes = watch('symptomes') || [];
+  const diagnosticPrincipal = watch('diagnosticPrincipal');
   const diagnostics = watch('diagnostics') || [];
   const dsm5 = watch('dsm5') || [];
   const medicaments = watch('medicaments') || [];
@@ -101,8 +100,7 @@ const ConsultationPage: React.FC = () => {
     const fetchPatients = async () => {
       try {
         setApiError(null);
-        // MODIFIEZ ICI : Décommentez et adaptez l'URL
-        const response = await fetch('http://localhost:3000/api/patients');
+        const response = await fetch(API_ENDPOINTS.patients);
         
         if (!response.ok) {
           throw new Error(`Erreur API: ${response.status} ${response.statusText}`);
@@ -140,9 +138,8 @@ const ConsultationPage: React.FC = () => {
     setIsSubmitting(true);
     try {
       console.log('Données à sauvegarder:', data);
-      
-      // MODIFIEZ ICI : Activez l'appel API réel
-      const response = await fetch('http://localhost:3000/api/consultations', {
+
+      const response = await fetch(API_ENDPOINTS.consultations, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
@@ -198,17 +195,28 @@ const ConsultationPage: React.FC = () => {
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Patient *
                 </label>
-                <select
-                  {...register('patientId')}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
-                >
-                  <option value="">Sélectionner un patient</option>
-                  {patients.map((patient) => (
-                    <option key={patient.id} value={patient.id}>
-                      {patient.nom} {patient.prenom}
-                    </option>
-                  ))}
-                </select>
+                <div className="flex gap-2">
+                  <select
+                    {...register('patientId')}
+                    className="flex-1 px-3 py-2 border border-gray-300 rounded-md text-sm"
+                  >
+                    <option value="">Sélectionner un patient</option>
+                    {patients.map((patient) => (
+                      <option key={patient.id} value={patient.id}>
+                        {patient.nom} {patient.prenom}
+                      </option>
+                    ))}
+                  </select>
+                  {selectedPatientId && (
+                    <button
+                      type="button"
+                      onClick={() => navigate(`/certificates?patientId=${selectedPatientId}`)}
+                      className="bg-green-600 text-white px-3 py-2 rounded-md text-sm hover:bg-green-700 whitespace-nowrap"
+                    >
+                      Certificats
+                    </button>
+                  )}
+                </div>
                 {errors.patientId && (
                   <p className="mt-1 text-red-500 text-sm">
                     {errors.patientId.message}
@@ -333,7 +341,22 @@ const ConsultationPage: React.FC = () => {
               />
             </div>
 
-            {/* Diagnostics et DSM-5 */}
+            {/* Diagnostic DSM-5 Principal */}
+            <div className="mb-6">
+              <Controller
+                name="diagnosticPrincipal"
+                control={control}
+                render={({ field, fieldState }) => (
+                  <DiagnosticSelector
+                    selectedDiagnostic={(field.value as string | null) || null}
+                    onChange={field.onChange}
+                    error={fieldState.error?.message}
+                  />
+                )}
+              />
+            </div>
+
+            {/* Diagnostics supplémentaires et DSM-5 */}
             <div>
               <Controller
                 name="diagnostics"
@@ -501,6 +524,10 @@ const ConsultationPage: React.FC = () => {
             <div>
               <span className="font-medium">Symptômes sélectionnés:</span>{' '}
               {symptomes.length} - {symptomes.join(', ')}
+            </div>
+            <div>
+              <span className="font-medium">Diagnostic DSM-5 principal:</span>{' '}
+              {diagnosticPrincipal || 'Non sélectionné'}
             </div>
             <div>
               <span className="font-medium">Diagnostics:</span>{' '}
