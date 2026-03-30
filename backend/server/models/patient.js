@@ -292,7 +292,11 @@ class Patient {
             'Nawel', 'Djamila', 'Rym', 'Sabrina', 'Ines'
         ];
         
+<<<<<<< HEAD
         const professions= [
+=======
+        const professions = [
+>>>>>>> cb30d177532597ade5b987d7d5d8977e61ca33b2
             'Enseignant', 'Médecin', 'Ingénieur', 'Commerçant', 'Fonctionnaire',
             'Infirmier', 'Avocat', 'Architecte', 'Artisan', 'Agriculteur',
             'Étudiant', 'Retraité', 'Sans emploi', 'Cadre', 'Technicien'

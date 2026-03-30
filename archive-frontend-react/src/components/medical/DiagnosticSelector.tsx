@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 import React, { useMemo } from 'react';
+=======
+import React from 'react';
+>>>>>>> cb30d177532597ade5b987d7d5d8977e61ca33b2
 import { useDSM5Diagnoses } from '../../hooks/useDSM5Diagnoses';
 
 interface DiagnosticSelectorProps {
@@ -12,6 +16,7 @@ const DiagnosticSelector: React.FC<DiagnosticSelectorProps> = ({
   onChange,
   error,
 }) => {
+<<<<<<< HEAD
   const { diagnoses, loading, filterDiagnoses, getDiagnosisByCode } = useDSM5Diagnoses();
   const [searchQuery, setSearchQuery] = React.useState('');
   const [isOpen, setIsOpen] = React.useState(false);
@@ -32,6 +37,14 @@ const DiagnosticSelector: React.FC<DiagnosticSelectorProps> = ({
   }, [filteredDiagnoses]);
 
   const selectedDiag = selectedDiagnostic ? getDiagnosisByCode(selectedDiagnostic) : null;
+=======
+  const { diagnoses, loading } = useDSM5Diagnoses();
+  const groupedByCategory = diagnoses.reduce((acc, diag) => {
+    if (!acc[diag.category]) acc[diag.category] = [];
+    acc[diag.category].push(diag);
+    return acc;
+  }, {} as Record<string, typeof diagnoses>);
+>>>>>>> cb30d177532597ade5b987d7d5d8977e61ca33b2
 
   return (
     <div className="space-y-2">
@@ -39,6 +52,7 @@ const DiagnosticSelector: React.FC<DiagnosticSelectorProps> = ({
         Diagnostic (DSM-5) *
       </label>
 
+<<<<<<< HEAD
       <div className="relative">
         <button
           type="button"
@@ -125,6 +139,27 @@ const DiagnosticSelector: React.FC<DiagnosticSelectorProps> = ({
           <span className="font-medium">Sélectionné:</span> {selectedDiag.code} - {selectedDiag.label}
         </p>
       )}
+=======
+      <select
+        value={selectedDiagnostic || ''}
+        onChange={(e) => onChange(e.target.value || null)}
+        disabled={loading}
+        className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100"
+      >
+        <option value="">Sélectionner un diagnostic...</option>
+        {Object.entries(groupedByCategory).map(([category, items]) => (
+          <optgroup key={category} label={category}>
+            {items.map((diag) => (
+              <option key={diag.code} value={diag.code}>
+                {diag.code} - {diag.label}
+              </option>
+            ))}
+          </optgroup>
+        ))}
+      </select>
+
+      {error && <p className="mt-1 text-red-500 text-sm">{error}</p>}
+>>>>>>> cb30d177532597ade5b987d7d5d8977e61ca33b2
     </div>
   );
 };
